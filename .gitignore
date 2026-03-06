@@ -10,6 +10,8 @@ build/
 
 # Local configuration
 local.properties
+keystore.properties
+.signing/
 
 # Outputs
 captures/
@@ -18,5 +20,6 @@ captures/
 
 # Logs
 *.log
+
 # Temp
 .tmp/
