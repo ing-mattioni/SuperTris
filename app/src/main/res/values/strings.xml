@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">Super Tris</string>
+    <string name="menu_tagline">Il super tris definitivo per Android.</string>
+
+    <string name="menu_nuova_partita">Nuova partita</string>
+    <string name="menu_continua">Continua</string>
+    <string name="menu_esci">Esci</string>
+
+    <string name="titolo_scegli_difficolta">Scegli difficolt&#224;</string>
+    <string name="difficolta_facile">Facile</string>
+    <string name="difficolta_medio">Medio</string>
+    <string name="difficolta_difficile">Difficile</string>
+
+    <string name="azione_indietro">Indietro</string>
+    <string name="azione_avvia">Avvia</string>
+    <string name="hint_seleziona_difficolta">Seleziona una difficolt&#224; per iniziare.</string>
+    <string name="stato_selezionata">Selezionata</string>
+    <string name="hint_tocca_per_selezionare">Tocca per selezionare</string>
+
+    <string name="gioco_tuo_simbolo">Il tuo simbolo: %1$s</string>
+    <string name="gioco_turno_tuo">Turno: tu</string>
+    <string name="gioco_turno_ai">Turno: AI</string>
+    <string name="gioco_ai_pensa">Il computer sta pensando...</string>
+
+    <string name="dialog_titolo_fine_partita">Fine partita</string>
+    <string name="micro_pareggio">P</string>
+    <string name="overlay_super_tris">SUPER TRIS</string>
+    <string name="overlay_vittoria_finale">Hai chiuso il super tris.</string>
+    <string name="overlay_sconfitta_finale">L\'AI ha chiuso il super tris.</string>
+    <string name="overlay_pareggio_finale">Nessun super tris. Partita pari.</string>
+    <string name="label_conquista">Super-cella conquistata</string>
+
+    <string name="fine_partita_vittoria">Hai vinto!</string>
+    <string name="fine_partita_sconfitta">Hai perso.</string>
+    <string name="fine_partita_pareggio">Pareggio.</string>
+
+    <string name="azione_menu">Menu principale</string>
+    <string name="azione_nuova_partita">Nuova partita</string>
+</resources>

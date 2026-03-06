@@ -1,0 +1,1 @@
+# Regole ProGuard/R8 (per ora vuoto).

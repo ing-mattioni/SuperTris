@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="28dp" />
+            <solid android:color="@color/brand_midnight" />
+        </shape>
+    </item>
+
+    <item android:left="28dp" android:right="28dp" android:top="18dp" android:bottom="18dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="22dp" />
+            <stroke
+                android:width="3dp"
+                android:color="@color/brand_lime" />
+            <solid android:color="#00000000" />
+        </shape>
+    </item>
+
+    <item android:left="64dp" android:right="64dp" android:top="36dp" android:bottom="36dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="3dp" />
+            <solid android:color="@color/brand_grid" />
+        </shape>
+    </item>
+
+    <item android:left="100dp" android:right="28dp" android:top="36dp" android:bottom="36dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="3dp" />
+            <solid android:color="@color/brand_grid" />
+        </shape>
+    </item>
+
+    <item android:left="36dp" android:right="36dp" android:top="64dp" android:bottom="64dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="3dp" />
+            <solid android:color="@color/brand_grid" />
+        </shape>
+    </item>
+
+    <item android:left="36dp" android:right="36dp" android:top="100dp" android:bottom="28dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="3dp" />
+            <solid android:color="@color/brand_grid" />
+        </shape>
+    </item>
+
+    <item android:left="38dp" android:right="94dp" android:top="38dp" android:bottom="94dp">
+        <shape android:shape="oval">
+            <stroke
+                android:width="8dp"
+                android:color="@color/brand_amber" />
+            <solid android:color="#00000000" />
+        </shape>
+    </item>
+
+    <item android:left="94dp" android:right="38dp" android:top="94dp" android:bottom="38dp">
+        <rotate android:fromDegrees="45">
+            <shape android:shape="rectangle">
+                <corners android:radius="6dp" />
+                <size
+                    android:width="10dp"
+                    android:height="46dp" />
+                <solid android:color="@color/brand_cyan" />
+            </shape>
+        </rotate>
+    </item>
+
+    <item android:left="94dp" android:right="38dp" android:top="94dp" android:bottom="38dp">
+        <rotate android:fromDegrees="-45">
+            <shape android:shape="rectangle">
+                <corners android:radius="6dp" />
+                <size
+                    android:width="10dp"
+                    android:height="46dp" />
+                <solid android:color="@color/brand_cyan" />
+            </shape>
+        </rotate>
+    </item>
+</layer-list>

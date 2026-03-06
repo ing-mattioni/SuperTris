@@ -1,0 +1,22 @@
+# Gradle
+.gradle/
+build/
+
+# Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Local configuration
+local.properties
+
+# Outputs
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Logs
+*.log
+# Temp
+.tmp/
