@@ -5,6 +5,8 @@
     <string name="menu_nuova_partita">Nuova partita</string>
     <string name="menu_continua">Continua</string>
     <string name="menu_esci">Esci</string>
+    <string name="menu_privacy_policy">Privacy policy</string>
+    <string name="privacy_policy_url">https://ing-mattioni.github.io/SuperTris/</string>
 
     <string name="titolo_scegli_difficolta">Scegli difficolt&#224;</string>
     <string name="difficolta_facile">Facile</string>

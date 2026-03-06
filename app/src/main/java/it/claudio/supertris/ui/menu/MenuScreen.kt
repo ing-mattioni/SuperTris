@@ -18,6 +18,7 @@ import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -26,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import it.claudio.supertris.R
@@ -43,6 +45,8 @@ fun MenuScreen(
     val hasSavedGame by vm.hasInProgressGame.collectAsState()
     val ctx = LocalContext.current
     val activity = ctx as? Activity
+    val uriHandler = LocalUriHandler.current
+    val privacyPolicyUrl = stringResource(id = R.string.privacy_policy_url)
 
     val alphaContinue by animateFloatAsState(
         targetValue = if (hasSavedGame) 1f else 0.45f,
@@ -98,6 +102,19 @@ fun MenuScreen(
                     ),
                     contentColor = MaterialTheme.colorScheme.onSurface,
                 )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                TextButton(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    onClick = { uriHandler.openUri(privacyPolicyUrl) },
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.menu_privacy_policy),
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
             }
         }
     }
