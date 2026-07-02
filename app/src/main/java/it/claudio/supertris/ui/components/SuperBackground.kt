@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -78,6 +79,13 @@ fun SuperBackground(
             )
         }
 
-        content()
+        // Lo sfondo resta a tutto schermo (sotto le barre di sistema),
+        // il contenuto viene tenuto dentro l'area sicura (edge-to-edge, API 35+).
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .safeDrawingPadding(),
+            content = content,
+        )
     }
 }
