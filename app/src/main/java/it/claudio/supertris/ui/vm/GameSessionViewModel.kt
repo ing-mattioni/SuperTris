@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.random.Random
@@ -123,7 +124,7 @@ class GameSessionViewModel(
             }.coerceAtMost(5_000L)
 
             val aiMove = withContext(Dispatchers.Default) {
-                SuperTrisAi.chooseMove(state = state, timeBudgetMs = budget)
+                SuperTrisAi.chooseMove(state = state, timeBudgetMs = budget, active = { isActive })
             }
 
             val next = SuperTrisRules.applyMove(state, aiMove)

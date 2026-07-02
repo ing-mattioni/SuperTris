@@ -14,6 +14,7 @@ object SuperTrisAi {
         state: GameState,
         timeBudgetMs: Long,
         random: Random = Random.Default,
+        active: () -> Boolean = { true },
     ): Move {
         val moves = SuperTrisRules.legalMoves(state)
         if (moves.isEmpty()) error("Nessuna mossa disponibile")
@@ -21,7 +22,7 @@ object SuperTrisAi {
         return when (state.difficulty) {
             Difficulty.FACILE -> moves.random(random)
             Difficulty.MEDIO -> chooseHeuristicMove(state, moves, random)
-            Difficulty.DIFFICILE -> chooseMctsMove(state, moves, timeBudgetMs, random)
+            Difficulty.DIFFICILE -> chooseMctsMove(state, moves, timeBudgetMs, random, active)
         }
     }
 
@@ -84,6 +85,7 @@ object SuperTrisAi {
         rootMoves: List<Move>,
         timeBudgetMs: Long,
         random: Random,
+        active: () -> Boolean = { true },
     ): Move {
         val ai = SuperTrisRules.aiMark(state)
         val endAt = System.currentTimeMillis() + timeBudgetMs.coerceAtLeast(150)
@@ -94,7 +96,7 @@ object SuperTrisAi {
             move = null,
         )
 
-        while (System.currentTimeMillis() < endAt) {
+        while (System.currentTimeMillis() < endAt && active()) {
             var node = root
             var simState = state
 
