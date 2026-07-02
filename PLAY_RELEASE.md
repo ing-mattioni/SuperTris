@@ -19,7 +19,14 @@ Per ricreare la configurazione da zero:
 Da PowerShell nella root del progetto:
 
 ```powershell
-.\gradlew.bat :app:bundleRelease --no-daemon
+.\gradlew.bat :app:bundleRelease
+```
+
+Su macchine dove la build fallisce con "Unable to establish loopback connection"
+(endpoint security che blocca i socket in %TEMP%), usare invece:
+
+```powershell
+.\build.bat :app:bundleRelease
 ```
 
 Output atteso:
