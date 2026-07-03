@@ -7,7 +7,10 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import it.claudio.supertris.core.GameState
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 
 private val Context.dataStore by preferencesDataStore(name = "supertris")
@@ -22,7 +25,7 @@ class GameRepository(
 
     private val keyGameState: Preferences.Key<String> = stringPreferencesKey("game_state_json")
     private val keyNickname: Preferences.Key<String> = stringPreferencesKey("nickname")
-    private val keyOnlineRoomCode: Preferences.Key<String> = stringPreferencesKey("online_room_code")
+    private val keyNotifiedMoves: Preferences.Key<String> = stringPreferencesKey("online_notified_moves_json")
 
     val gameStateFlow: Flow<GameState?> = context.dataStore.data.map { prefs ->
         decodeGameStateOrNull(prefs[keyGameState])
@@ -58,14 +61,26 @@ class GameRepository(
         }
     }
 
-    // Codice dell'ultima stanza online, per riprendere la partita.
-    val onlineRoomCodeFlow: Flow<String?> = context.dataStore.data.map { prefs ->
-        prefs[keyOnlineRoomCode]?.takeIf { it.isNotBlank() }
+    // Mappa codice stanza -> numero mosse gia' notificate: evita che il worker
+    // delle notifiche ripeta "e' il tuo turno" per la stessa mossa.
+    suspend fun readNotifiedMoves(): Map<String, Int> {
+        val raw = context.dataStore.data.map { it[keyNotifiedMoves] }.first()
+        if (raw.isNullOrBlank()) return emptyMap()
+        return runCatching {
+            json.decodeFromString(
+                MapSerializer(String.serializer(), Int.serializer()),
+                raw,
+            )
+        }.getOrDefault(emptyMap())
     }
 
-    suspend fun saveOnlineRoomCode(code: String?) {
+    suspend fun saveNotifiedMoves(map: Map<String, Int>) {
+        val encoded = json.encodeToString(
+            MapSerializer(String.serializer(), Int.serializer()),
+            map,
+        )
         context.dataStore.edit { prefs ->
-            if (code.isNullOrBlank()) prefs.remove(keyOnlineRoomCode) else prefs[keyOnlineRoomCode] = code
+            prefs[keyNotifiedMoves] = encoded
         }
     }
 

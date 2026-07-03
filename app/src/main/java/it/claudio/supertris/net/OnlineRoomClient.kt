@@ -38,8 +38,39 @@ data class OnlineRoom(
     val moves: List<RoomMove>,
     val hostSeenMs: Long?,
     val guestSeenMs: Long?,
+    val updatedAtMs: Long?,
     val protocolVersion: Int,
 )
+
+enum class GameSummaryStatus { WAITING_GUEST, YOUR_TURN, THEIR_TURN, FINISHED }
+
+data class GameSummary(
+    val code: String,
+    val opponentName: String?,
+    val status: GameSummaryStatus,
+    val updatedAtMs: Long?,
+)
+
+/** Riepilogo della stanza dal punto di vista di [myUid]; null se non partecipi o la stanza e' corrotta. */
+fun OnlineRoom.toSummary(myUid: String): GameSummary? {
+    val amHost = hostUid == myUid
+    if (!amHost && guestUid != myUid) return null
+    if (guestUid == null) {
+        return GameSummary(code, opponentName = null, status = GameSummaryStatus.WAITING_GUEST, updatedAtMs = updatedAtMs)
+    }
+    val st = buildLocalState(localIsHost = amHost) ?: return null
+    val status = when {
+        st.isGameOver() -> GameSummaryStatus.FINISHED
+        SuperTrisRules.isHumanTurn(st) -> GameSummaryStatus.YOUR_TURN
+        else -> GameSummaryStatus.THEIR_TURN
+    }
+    return GameSummary(
+        code = code,
+        opponentName = if (amHost) guestName else hostName,
+        status = status,
+        updatedAtMs = updatedAtMs,
+    )
+}
 
 /** Ricostruisce lo stato locale applicando le mosse in ordine. Null se una mossa e' illegale (desync). */
 fun OnlineRoom.buildLocalState(localIsHost: Boolean): GameState? {
@@ -103,6 +134,7 @@ class OnlineRoomClient {
                             "guestUid" to null,
                             "hostName" to nickname,
                             "guestName" to null,
+                            "participants" to listOf(myUid),
                             "hostMark" to hostMark,
                             "firstTurn" to firstTurn,
                             "round" to 0,
@@ -113,6 +145,7 @@ class OnlineRoomClient {
                             "guestSeen" to null,
                             "protocolVersion" to ONLINE_PROTOCOL_VERSION,
                             "createdAt" to FieldValue.serverTimestamp(),
+                            "updatedAt" to FieldValue.serverTimestamp(),
                             "expireAt" to newExpireAt(),
                         ),
                     )
@@ -136,6 +169,7 @@ class OnlineRoomClient {
                     moves = emptyList(),
                     hostSeenMs = System.currentTimeMillis(),
                     guestSeenMs = null,
+                    updatedAtMs = System.currentTimeMillis(),
                     protocolVersion = ONLINE_PROTOCOL_VERSION,
                 )
             }
@@ -163,8 +197,10 @@ class OnlineRoomClient {
                         mapOf(
                             "guestUid" to myUid,
                             "guestName" to nickname,
+                            "participants" to FieldValue.arrayUnion(myUid),
                             "status" to "playing",
                             "guestSeen" to FieldValue.serverTimestamp(),
+                            "updatedAt" to FieldValue.serverTimestamp(),
                             "expireAt" to newExpireAt(),
                         ),
                     )
@@ -200,6 +236,32 @@ class OnlineRoomClient {
         awaitClose { registration.remove() }
     }
 
+    /** Tutte le stanze di cui [myUid] e' partecipante, ordinate per attivita' recente. */
+    fun observeMyGames(myUid: String): Flow<List<OnlineRoom>> = callbackFlow {
+        val registration = db.collection(ROOMS)
+            .whereArrayContains("participants", myUid)
+            .addSnapshotListener { snap, error ->
+                if (error != null) {
+                    trySend(emptyList())
+                } else {
+                    val rooms = snap?.documents.orEmpty()
+                        .mapNotNull { parseRoom(it) }
+                        .sortedByDescending { it.updatedAtMs ?: 0L }
+                    trySend(rooms)
+                }
+            }
+        awaitClose { registration.remove() }
+    }
+
+    /** Versione one-shot per il worker delle notifiche. */
+    suspend fun fetchMyGames(myUid: String): List<OnlineRoom> {
+        val snap = db.collection(ROOMS)
+            .whereArrayContains("participants", myUid)
+            .get()
+            .await()
+        return snap.documents.mapNotNull { parseRoom(it) }
+    }
+
     /** Aggiunge la mossa se l'indice atteso corrisponde (transazione anti-race). */
     suspend fun sendMove(code: String, expectedIndex: Int, micro: Int, cell: Int, isHost: Boolean) {
         val ref = db.collection(ROOMS).document(code)
@@ -222,6 +284,7 @@ class OnlineRoomClient {
                 mapOf(
                     "moves" to newMoves,
                     seenField(isHost) to FieldValue.serverTimestamp(),
+                    "updatedAt" to FieldValue.serverTimestamp(),
                     "expireAt" to newExpireAt(),
                 ),
             )
@@ -235,6 +298,7 @@ class OnlineRoomClient {
                 mapOf(
                     field to true,
                     seenField(isHost) to FieldValue.serverTimestamp(),
+                    "updatedAt" to FieldValue.serverTimestamp(),
                     "expireAt" to newExpireAt(),
                 ),
             ).await()
@@ -257,6 +321,7 @@ class OnlineRoomClient {
                     "hostRematch" to false,
                     "guestRematch" to false,
                     "status" to "playing",
+                    "updatedAt" to FieldValue.serverTimestamp(),
                     "expireAt" to newExpireAt(),
                 ),
             )
@@ -321,6 +386,7 @@ class OnlineRoomClient {
                 },
                 hostSeenMs = snap.getTimestamp("hostSeen")?.toDate()?.time,
                 guestSeenMs = snap.getTimestamp("guestSeen")?.toDate()?.time,
+                updatedAtMs = snap.getTimestamp("updatedAt")?.toDate()?.time,
                 protocolVersion = (snap.getLong("protocolVersion") ?: 0L).toInt(),
             )
         }.getOrNull()
@@ -329,7 +395,9 @@ class OnlineRoomClient {
     companion object {
         private const val ROOMS = "rooms"
         private const val CREATE_ATTEMPTS = 5
-        private const val ROOM_TTL_MS = 24L * 60 * 60 * 1000
+
+        // 7 giorni: ritmo da gioco asincrono, una mossa ogni tanto.
+        private const val ROOM_TTL_MS = 7L * 24 * 60 * 60 * 1000
 
         // Alfabeto senza caratteri ambigui (niente 0/O, 1/I/L).
         private const val CODE_ALPHABET = "23456789ABCDEFGHJKMNPQRSTUVWXYZ"

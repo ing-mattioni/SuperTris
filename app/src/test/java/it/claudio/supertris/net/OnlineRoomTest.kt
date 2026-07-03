@@ -11,13 +11,13 @@ import kotlin.random.Random
 
 class OnlineRoomTest {
 
-    private fun roomWithMoves(moves: List<RoomMove>) = OnlineRoom(
+    private fun roomWithMoves(moves: List<RoomMove>, guestUid: String? = "uid-guest") = OnlineRoom(
         code = "TEST1",
-        status = "playing",
+        status = if (guestUid == null) "waiting" else "playing",
         hostUid = "uid-host",
-        guestUid = "uid-guest",
+        guestUid = guestUid,
         hostName = "Claudio",
-        guestName = "Beta",
+        guestName = if (guestUid == null) null else "Beta",
         hostMark = SuperTrisRules.X,
         firstTurn = SuperTrisRules.X,
         round = 0,
@@ -26,6 +26,7 @@ class OnlineRoomTest {
         moves = moves,
         hostSeenMs = null,
         guestSeenMs = null,
+        updatedAtMs = 1000L,
         protocolVersion = ONLINE_PROTOCOL_VERSION,
     )
 
@@ -85,6 +86,34 @@ class OnlineRoomTest {
             ),
         )
         assertNull(room.buildLocalState(localIsHost = true))
+    }
+
+    @Test
+    fun toSummary_calcolaIlTurnoCorrettamente() {
+        // firstTurn = X = hostMark: con 0 mosse tocca all'host.
+        val fresh = roomWithMoves(emptyList())
+        assertEquals(GameSummaryStatus.YOUR_TURN, fresh.toSummary("uid-host")!!.status)
+        assertEquals(GameSummaryStatus.THEIR_TURN, fresh.toSummary("uid-guest")!!.status)
+
+        // Dopo una mossa il turno passa al guest.
+        val oneMove = roomWithMoves(listOf(RoomMove(index = 0, micro = 4, cell = 4)))
+        assertEquals(GameSummaryStatus.THEIR_TURN, oneMove.toSummary("uid-host")!!.status)
+        assertEquals(GameSummaryStatus.YOUR_TURN, oneMove.toSummary("uid-guest")!!.status)
+
+        // Nomi avversario dal punto di vista giusto.
+        assertEquals("Beta", oneMove.toSummary("uid-host")!!.opponentName)
+        assertEquals("Claudio", oneMove.toSummary("uid-guest")!!.opponentName)
+
+        // Estranei: nessun riepilogo.
+        assertNull(oneMove.toSummary("uid-intruso"))
+    }
+
+    @Test
+    fun toSummary_stanzaInAttesa_eSenzaAvversario() {
+        val waiting = roomWithMoves(emptyList(), guestUid = null)
+        val summary = waiting.toSummary("uid-host")!!
+        assertEquals(GameSummaryStatus.WAITING_GUEST, summary.status)
+        assertNull(summary.opponentName)
     }
 
     @Test
