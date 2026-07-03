@@ -28,6 +28,8 @@ fun TwoPlayersScreen(
     onBack: () -> Unit,
     onPassAndPlay: () -> Unit,
     onNearby: () -> Unit,
+    onOnline: () -> Unit,
+    onlineEnabled: Boolean,
 ) {
     SuperBackground {
         Column(
@@ -70,6 +72,16 @@ fun TwoPlayersScreen(
                     title = stringResource(id = R.string.two_players_due_telefoni),
                     subtitle = stringResource(id = R.string.two_players_due_telefoni_hint),
                     onClick = onNearby,
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                ModeCard(
+                    title = stringResource(id = R.string.two_players_online),
+                    subtitle = if (onlineEnabled) {
+                        stringResource(id = R.string.two_players_online_hint)
+                    } else {
+                        stringResource(id = R.string.two_players_online_disabled_hint)
+                    },
+                    onClick = { if (onlineEnabled) onOnline() },
                 )
 
                 Spacer(modifier = Modifier.height(18.dp))

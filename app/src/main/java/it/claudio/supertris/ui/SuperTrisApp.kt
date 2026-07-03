@@ -16,11 +16,14 @@ import it.claudio.supertris.ui.game.GameRoute
 import it.claudio.supertris.ui.menu.MenuScreen
 import it.claudio.supertris.ui.nearby.NearbyGameRoute
 import it.claudio.supertris.ui.nearby.NearbyLobbyScreen
+import it.claudio.supertris.ui.online.OnlineGameRoute
+import it.claudio.supertris.ui.online.OnlineLobbyScreen
 import it.claudio.supertris.ui.rules.RulesScreen
 import it.claudio.supertris.ui.twoplayers.TwoPlayersScreen
 import it.claudio.supertris.ui.vm.GameSessionViewModel
 import it.claudio.supertris.ui.vm.MenuViewModel
 import it.claudio.supertris.ui.vm.NearbyViewModel
+import it.claudio.supertris.ui.vm.OnlineViewModel
 
 private object Routes {
     const val MENU = "menu"
@@ -29,6 +32,8 @@ private object Routes {
     const val TWO_PLAYERS = "two_players"
     const val NEARBY_LOBBY = "nearby_lobby"
     const val NEARBY_GAME = "nearby_game"
+    const val ONLINE_LOBBY = "online_lobby"
+    const val ONLINE_GAME = "online_game"
     const val RULES = "rules"
 }
 
@@ -41,6 +46,9 @@ fun SuperTrisApp() {
     val gameVm: GameSessionViewModel = viewModel(factory = GameSessionViewModel.Factory(app.gameRepository))
     val nearbyVm: NearbyViewModel = viewModel(
         factory = NearbyViewModel.Factory(app.nearbyTransport, Build.MODEL ?: "Android"),
+    )
+    val onlineVm: OnlineViewModel = viewModel(
+        factory = OnlineViewModel.Factory(app.gameRepository, app.onlineRoomClient),
     )
 
     val goToMenu = remember {
@@ -103,6 +111,25 @@ fun SuperTrisApp() {
                     goToGame()
                 },
                 onNearby = { navController.navigate(Routes.NEARBY_LOBBY) },
+                onOnline = { navController.navigate(Routes.ONLINE_LOBBY) },
+                onlineEnabled = app.onlineAvailable,
+            )
+        }
+        composable(Routes.ONLINE_LOBBY) {
+            OnlineLobbyScreen(
+                vm = onlineVm,
+                onBack = { navController.popBackStack() },
+                onGameReady = {
+                    navController.navigate(Routes.ONLINE_GAME) {
+                        launchSingleTop = true
+                    }
+                },
+            )
+        }
+        composable(Routes.ONLINE_GAME) {
+            OnlineGameRoute(
+                vm = onlineVm,
+                onExitToMenu = { goToMenu() },
             )
         }
         composable(Routes.NEARBY_LOBBY) {

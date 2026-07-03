@@ -27,6 +27,27 @@
     <string name="two_players_stesso_telefono_hint">Passatevi il telefono a ogni turno.</string>
     <string name="two_players_due_telefoni">Su due telefoni vicini</string>
     <string name="two_players_due_telefoni_hint">Connessione diretta, senza internet.</string>
+    <string name="two_players_online">A distanza</string>
+    <string name="two_players_online_hint">Via internet, con codice stanza.</string>
+    <string name="two_players_online_disabled_hint">Non disponibile in questa build.</string>
+
+    <string name="online_nickname_label">Il tuo nome</string>
+    <string name="online_crea">Crea partita</string>
+    <string name="online_crea_hint">Ricevi un codice da mandare al tuo avversario.</string>
+    <string name="online_unisciti">Unisciti</string>
+    <string name="online_codice_label">Codice stanza</string>
+    <string name="online_riprendi">Riprendi partita (%1$s)</string>
+    <string name="online_in_attesa">In attesa dell\'avversario&#8230;</string>
+    <string name="online_codice_condividi">Condividi il codice</string>
+    <string name="online_condividi_testo">Sfidami a Super Tris! Apri l\'app, vai su "Gioca in 2 &#8594; A distanza" e inserisci il codice %1$s</string>
+    <string name="online_lavoro">Un attimo&#8230;</string>
+    <string name="online_err_not_found">Stanza non trovata. Controlla il codice.</string>
+    <string name="online_err_full">La stanza &#232; gi&#224; al completo.</string>
+    <string name="online_err_version">Versioni dell\'app non compatibili. Aggiornate entrambi.</string>
+    <string name="online_err_network">Problema di rete. Controlla la connessione e riprova.</string>
+    <string name="online_err_room_gone">La partita non &#232; pi&#249; disponibile.</string>
+    <string name="online_avversario_offline">L\'avversario sembra offline&#8230;</string>
+    <string name="online_dialog_room_gone_titolo">Partita terminata</string>
     <string name="menu_privacy_policy">Privacy policy</string>
     <string name="privacy_policy_url">https://ing-mattioni.github.io/SuperTris/</string>
 
