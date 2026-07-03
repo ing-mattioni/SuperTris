@@ -251,7 +251,7 @@ class NearbyViewModel(
         celebrations.reset()
         localRematch = false
         remoteRematch = false
-        val st = SuperTrisRules.newNearbyGame(localMark = localMark, firstTurn = firstTurn)
+        val st = SuperTrisRules.newRemoteGame(localMark = localMark, firstTurn = firstTurn, gameMode = GameMode.NEARBY)
         gameState = st
         pushUi(st)
         _lobbyState.value = LobbyState.InGame

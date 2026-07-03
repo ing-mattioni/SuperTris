@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import it.claudio.supertris.R
 import it.claudio.supertris.core.GameMode
 import it.claudio.supertris.core.SuperTrisRules
+import it.claudio.supertris.core.isRemote
 import it.claudio.supertris.ui.components.MarkGlyph
 import it.claudio.supertris.ui.components.SuperBackground
 import it.claudio.supertris.ui.vm.GameSessionViewModel
@@ -112,7 +113,7 @@ fun GameScreen(
         winnerMark == SuperTrisRules.EMPTY -> stringResource(R.string.overlay_pareggio_finale)
         ui.gameMode == GameMode.PASS_AND_PLAY -> stringResource(R.string.overlay_vince_chiuso, markSymbol(winnerMark))
         localWon -> stringResource(R.string.overlay_vittoria_finale)
-        ui.gameMode == GameMode.NEARBY -> stringResource(R.string.overlay_sconfitta_avversario)
+        ui.gameMode.isRemote -> stringResource(R.string.overlay_sconfitta_avversario)
         else -> stringResource(R.string.overlay_sconfitta_finale)
     }
 
@@ -195,7 +196,7 @@ private fun TopInfoBar(ui: GameUiState) {
     val turnText = when {
         isPassAndPlay -> stringResource(id = R.string.gioco_turno_di, markSymbol(ui.turnMark))
         ui.isHumanTurn -> stringResource(id = R.string.gioco_turno_tuo)
-        ui.gameMode == GameMode.NEARBY -> stringResource(
+        ui.gameMode.isRemote -> stringResource(
             id = R.string.gioco_turno_di,
             ui.opponentName ?: stringResource(id = R.string.nearby_avversario),
         )

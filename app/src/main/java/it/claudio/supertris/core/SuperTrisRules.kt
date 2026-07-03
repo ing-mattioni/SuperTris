@@ -51,13 +51,15 @@ object SuperTrisRules {
         )
     }
 
-    // Partita NEARBY: simboli e primo turno decisi dall'host, uguali su entrambi i telefoni.
-    fun newNearbyGame(localMark: Int, firstTurn: Int): GameState {
+    // Partita remota (NEARBY oppure ONLINE): simboli e primo turno decisi
+    // dall'host, uguali su entrambi i telefoni.
+    fun newRemoteGame(localMark: Int, firstTurn: Int, gameMode: GameMode = GameMode.NEARBY): GameState {
+        require(gameMode.isRemote) { "GameMode non remoto: $gameMode" }
         require(localMark == X || localMark == O) { "Mark non valido: $localMark" }
         require(firstTurn == X || firstTurn == O) { "Turno non valido: $firstTurn" }
         return GameState(
             difficulty = Difficulty.FACILE, // non usata: nessuna AI in questa modalita'
-            gameMode = GameMode.NEARBY,
+            gameMode = gameMode,
             humanMark = localMark,
             turn = firstTurn,
             forcedMicro = -1,

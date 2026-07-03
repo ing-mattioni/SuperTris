@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Partita online (v1.3) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <!-- Permessi per Nearby Connections (partita su due telefoni vicini).
          Matrice ufficiale per targetSdk 33+: i permessi legacy valgono solo
          sulle versioni Android indicate da maxSdkVersion. -->

@@ -14,8 +14,8 @@ class NearbySyncTest {
 
     @Test
     fun dueDispositivi_cheApplicanoLeStesseMosse_restanoSincronizzati() {
-        var host = SuperTrisRules.newNearbyGame(localMark = SuperTrisRules.X, firstTurn = SuperTrisRules.X)
-        var guest = SuperTrisRules.newNearbyGame(localMark = SuperTrisRules.O, firstTurn = SuperTrisRules.X)
+        var host = SuperTrisRules.newRemoteGame(localMark = SuperTrisRules.X, firstTurn = SuperTrisRules.X)
+        var guest = SuperTrisRules.newRemoteGame(localMark = SuperTrisRules.O, firstTurn = SuperTrisRules.X)
         val random = Random(42)
 
         while (!host.isGameOver()) {

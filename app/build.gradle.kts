@@ -22,6 +22,13 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
+// Il plugin google-services richiede google-services.json (vedi FIREBASE_SETUP.md).
+// Applicato solo se il file esiste, cosi' il progetto compila anche senza Firebase:
+// in quel caso la modalita' online risulta semplicemente non disponibile a runtime.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 android {
     namespace = "it.claudio.supertris"
     compileSdk = 36
@@ -31,7 +38,7 @@ android {
         minSdk = 24
         targetSdk = 36
         versionCode = 2
-        versionName = "1.2.0"
+        versionName = "1.3.0-dev"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -103,6 +110,12 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
 
     implementation("com.google.android.gms:play-services-nearby:19.3.0")
+
+    val firebaseBom = platform("com.google.firebase:firebase-bom:33.13.0")
+    implementation(firebaseBom)
+    implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-auth")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")

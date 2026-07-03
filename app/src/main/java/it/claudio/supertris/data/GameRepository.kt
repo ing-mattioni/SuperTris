@@ -21,6 +21,8 @@ class GameRepository(
     }
 
     private val keyGameState: Preferences.Key<String> = stringPreferencesKey("game_state_json")
+    private val keyNickname: Preferences.Key<String> = stringPreferencesKey("nickname")
+    private val keyOnlineRoomCode: Preferences.Key<String> = stringPreferencesKey("online_room_code")
 
     val gameStateFlow: Flow<GameState?> = context.dataStore.data.map { prefs ->
         decodeGameStateOrNull(prefs[keyGameState])
@@ -41,6 +43,29 @@ class GameRepository(
     suspend fun clearSavedGame() {
         context.dataStore.edit { prefs ->
             prefs.remove(keyGameState)
+        }
+    }
+
+    // ---- Multiplayer online (v1.3) ----
+
+    val nicknameFlow: Flow<String?> = context.dataStore.data.map { prefs ->
+        prefs[keyNickname]?.takeIf { it.isNotBlank() }
+    }
+
+    suspend fun saveNickname(nickname: String) {
+        context.dataStore.edit { prefs ->
+            prefs[keyNickname] = nickname.trim()
+        }
+    }
+
+    // Codice dell'ultima stanza online, per riprendere la partita.
+    val onlineRoomCodeFlow: Flow<String?> = context.dataStore.data.map { prefs ->
+        prefs[keyOnlineRoomCode]?.takeIf { it.isNotBlank() }
+    }
+
+    suspend fun saveOnlineRoomCode(code: String?) {
+        context.dataStore.edit { prefs ->
+            if (code.isNullOrBlank()) prefs.remove(keyOnlineRoomCode) else prefs[keyOnlineRoomCode] = code
         }
     }
 
