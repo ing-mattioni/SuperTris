@@ -7,17 +7,27 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import android.os.Build
 import it.claudio.supertris.SuperTrisApplication
+import it.claudio.supertris.core.Difficulty
+import it.claudio.supertris.core.GameMode
 import it.claudio.supertris.ui.difficulty.DifficultyScreen
-import it.claudio.supertris.ui.game.GameScreen
+import it.claudio.supertris.ui.game.GameRoute
 import it.claudio.supertris.ui.menu.MenuScreen
+import it.claudio.supertris.ui.nearby.NearbyGameRoute
+import it.claudio.supertris.ui.nearby.NearbyLobbyScreen
+import it.claudio.supertris.ui.twoplayers.TwoPlayersScreen
 import it.claudio.supertris.ui.vm.GameSessionViewModel
 import it.claudio.supertris.ui.vm.MenuViewModel
+import it.claudio.supertris.ui.vm.NearbyViewModel
 
 private object Routes {
     const val MENU = "menu"
     const val DIFFICULTY = "difficulty"
     const val GAME = "game"
+    const val TWO_PLAYERS = "two_players"
+    const val NEARBY_LOBBY = "nearby_lobby"
+    const val NEARBY_GAME = "nearby_game"
 }
 
 @Composable
@@ -27,6 +37,9 @@ fun SuperTrisApp() {
 
     val menuVm: MenuViewModel = viewModel(factory = MenuViewModel.Factory(app.gameRepository))
     val gameVm: GameSessionViewModel = viewModel(factory = GameSessionViewModel.Factory(app.gameRepository))
+    val nearbyVm: NearbyViewModel = viewModel(
+        factory = NearbyViewModel.Factory(app.nearbyTransport, Build.MODEL ?: "Android"),
+    )
 
     val goToMenu = remember {
         {
@@ -56,6 +69,7 @@ fun SuperTrisApp() {
                 vm = menuVm,
                 onNuovaPartita = { goToDifficulty() },
                 onContinua = { goToGame() },
+                onGiocaIn2 = { navController.navigate(Routes.TWO_PLAYERS) },
                 onEsci = { /* gestito dentro la schermata */ },
             )
         }
@@ -69,10 +83,37 @@ fun SuperTrisApp() {
             )
         }
         composable(Routes.GAME) {
-            GameScreen(
+            GameRoute(
                 vm = gameVm,
                 onBackToMenu = { goToMenu() },
                 onNewGame = { goToDifficulty() },
+            )
+        }
+        composable(Routes.TWO_PLAYERS) {
+            TwoPlayersScreen(
+                onBack = { navController.popBackStack() },
+                onPassAndPlay = {
+                    gameVm.startNewGame(Difficulty.FACILE, GameMode.PASS_AND_PLAY)
+                    goToGame()
+                },
+                onNearby = { navController.navigate(Routes.NEARBY_LOBBY) },
+            )
+        }
+        composable(Routes.NEARBY_LOBBY) {
+            NearbyLobbyScreen(
+                vm = nearbyVm,
+                onBack = { navController.popBackStack() },
+                onGameReady = {
+                    navController.navigate(Routes.NEARBY_GAME) {
+                        launchSingleTop = true
+                    }
+                },
+            )
+        }
+        composable(Routes.NEARBY_GAME) {
+            NearbyGameRoute(
+                vm = nearbyVm,
+                onExitToMenu = { goToMenu() },
             )
         }
     }

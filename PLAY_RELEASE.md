@@ -37,3 +37,11 @@ Output atteso:
 
 Il progetto ora usa `targetSdk = 36` e `compileSdk = 36`.
 Prima di pubblicare, verifica sempre i requisiti Play Store correnti.
+
+## Nota permessi (dalla v1.1)
+
+La modalita' "su due telefoni vicini" usa Nearby Connections e dichiara i
+permessi Bluetooth/NEARBY_WIFI_DEVICES (con `neverForLocation`) piu' i
+permessi legacy di localizzazione solo per Android 12 e precedenti.
+Nella scheda Data Safety: nessun dato raccolto ne' condiviso, la
+comunicazione avviene solo tra i due dispositivi.

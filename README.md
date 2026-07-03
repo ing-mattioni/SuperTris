@@ -2,9 +2,14 @@
 
 App Android (Kotlin + Jetpack Compose) per giocare a "Super Tic Tac Toe" in italiano.
 
-## Note (v1.0)
-- Solo Player vs AI (facile/medio/difficile)
-- Salvataggio automatico dopo ogni mossa ("Continua")
+## Note (v1.1)
+- Player vs AI (facile/medio/difficile)
+- **Gioca in 2 — sullo stesso telefono** (pass-and-play)
+- **Gioca in 2 — su due telefoni vicini** via Google Nearby Connections:
+  connessione diretta Bluetooth/Wi-Fi, senza internet ne' router. Un telefono
+  "Crea partita", l'altro "Cerca partite"; conferma con codice su entrambi.
+  Richiede Google Play Services e i permessi Bluetooth/dispositivi vicini.
+- Salvataggio automatico dopo ogni mossa ("Continua", solo partite locali)
 - Simbolo (X/O) e chi inizia random a ogni nuova partita
 
 ## Requisiti di build

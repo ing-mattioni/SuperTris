@@ -5,6 +5,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class GameState(
     val difficulty: Difficulty,
+    // Default per retrocompatibilita' con le partite salvate prima del multiplayer.
+    val gameMode: GameMode = GameMode.VS_AI,
+    // In VS_AI e NEARBY e' il simbolo del giocatore locale; in PASS_AND_PLAY non e' significativo.
     val humanMark: Int,
     val turn: Int,
     val forcedMicro: Int, // -1 = puoi giocare ovunque

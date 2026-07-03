@@ -40,6 +40,7 @@ fun MenuScreen(
     vm: MenuViewModel,
     onNuovaPartita: () -> Unit,
     onContinua: () -> Unit,
+    onGiocaIn2: () -> Unit,
     onEsci: () -> Unit,
 ) {
     val hasSavedGame by vm.hasInProgressGame.collectAsState()
@@ -89,6 +90,11 @@ fun MenuScreen(
                     enabled = hasSavedGame,
                     alpha = alphaContinue,
                     onClick = onContinua,
+                )
+                Spacer(modifier = Modifier.height(14.dp))
+                BigMenuButton(
+                    text = stringResource(id = R.string.menu_gioca_in_2),
+                    onClick = onGiocaIn2,
                 )
                 Spacer(modifier = Modifier.height(14.dp))
                 BigMenuButton(

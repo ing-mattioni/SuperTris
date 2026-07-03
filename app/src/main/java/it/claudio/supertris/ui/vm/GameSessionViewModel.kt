@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import it.claudio.supertris.ai.SuperTrisAi
 import it.claudio.supertris.core.Difficulty
+import it.claudio.supertris.core.GameMode
 import it.claudio.supertris.core.GameState
 import it.claudio.supertris.core.Move
 import it.claudio.supertris.core.SuperTrisRules
@@ -22,7 +23,10 @@ import kotlin.random.Random
 
 data class GameUiState(
     val difficulty: Difficulty = Difficulty.FACILE,
+    val gameMode: GameMode = GameMode.VS_AI,
     val humanMark: Int = SuperTrisRules.X,
+    val turnMark: Int = SuperTrisRules.X,
+    val opponentName: String? = null,
     val isHumanTurn: Boolean = true,
     val isAiThinking: Boolean = false,
     val forcedMicro: Int = -1,
@@ -34,6 +38,8 @@ data class GameUiState(
     val lastResolvedMark: Int = SuperTrisRules.EMPTY,
     val microCelebrationToken: Int = 0,
     val gameOverCelebrationToken: Int = 0,
+    // NEARBY: rivincita chiesta localmente, in attesa dell'avversario.
+    val waitingRematch: Boolean = false,
 )
 
 class GameSessionViewModel(
@@ -47,10 +53,7 @@ class GameSessionViewModel(
     private var currentState: GameState? = null
     private var isGameVisible: Boolean = false
 
-    private var lastResolvedMicro: Int = -1
-    private var lastResolvedMark: Int = SuperTrisRules.EMPTY
-    private var microCelebrationToken: Int = 0
-    private var gameOverCelebrationToken: Int = 0
+    private val celebrations = CelebrationTracker()
 
     init {
         repo.gameStateFlow
@@ -78,11 +81,11 @@ class GameSessionViewModel(
         maybeTriggerAiMove(st)
     }
 
-    fun startNewGame(difficulty: Difficulty) {
+    fun startNewGame(difficulty: Difficulty, gameMode: GameMode = GameMode.VS_AI) {
         aiJob?.cancel()
-        resetCelebrations()
+        celebrations.reset()
         viewModelScope.launch {
-            val st = SuperTrisRules.newGame(difficulty = difficulty, random = Random.Default)
+            val st = SuperTrisRules.newGame(difficulty = difficulty, gameMode = gameMode, random = Random.Default)
             repo.saveGame(st)
             currentState = st
             pushUi(st, isAiThinking = false)
@@ -90,17 +93,23 @@ class GameSessionViewModel(
         }
     }
 
+    // In PASS_AND_PLAY entrambi i giocatori toccano lo stesso schermo.
+    private fun isLocalTurn(state: GameState): Boolean = when (state.gameMode) {
+        GameMode.PASS_AND_PLAY -> true
+        else -> SuperTrisRules.isHumanTurn(state)
+    }
+
     fun onHumanTap(micro: Int, cell: Int) {
         val st = currentState ?: return
         if (st.isGameOver()) return
-        if (!SuperTrisRules.isHumanTurn(st)) return
+        if (!isLocalTurn(st)) return
 
         val move = Move(micro = micro, cell = cell)
         if (!SuperTrisRules.isLegalMove(st, move)) return
 
         viewModelScope.launch {
             val next = SuperTrisRules.applyMove(st, move)
-            registerCelebrations(previous = st, next = next, move = move)
+            celebrations.register(previous = st, next = next, move = move)
             repo.saveGame(next)
             currentState = next
             pushUi(next, isAiThinking = false)
@@ -109,6 +118,7 @@ class GameSessionViewModel(
     }
 
     private fun maybeTriggerAiMove(state: GameState) {
+        if (state.gameMode != GameMode.VS_AI) return
         if (!isGameVisible) return
         if (state.isGameOver()) return
         if (SuperTrisRules.isHumanTurn(state)) return
@@ -128,7 +138,7 @@ class GameSessionViewModel(
             }
 
             val next = SuperTrisRules.applyMove(state, aiMove)
-            registerCelebrations(previous = state, next = next, move = aiMove)
+            celebrations.register(previous = state, next = next, move = aiMove)
             repo.saveGame(next)
             currentState = next
             pushUi(next, isAiThinking = false)
@@ -136,54 +146,23 @@ class GameSessionViewModel(
         }
     }
 
-    private fun registerCelebrations(previous: GameState, next: GameState, move: Move) {
-        lastResolvedMicro = -1
-        lastResolvedMark = SuperTrisRules.EMPTY
-
-        val prevMicro = previous.microStatus[move.micro]
-        val nextMicro = next.microStatus[move.micro]
-        if (prevMicro == SuperTrisRules.STATUS_IN_CORSO) {
-            when (nextMicro) {
-                SuperTrisRules.STATUS_X -> {
-                    lastResolvedMicro = move.micro
-                    lastResolvedMark = SuperTrisRules.X
-                    microCelebrationToken++
-                }
-                SuperTrisRules.STATUS_O -> {
-                    lastResolvedMicro = move.micro
-                    lastResolvedMark = SuperTrisRules.O
-                    microCelebrationToken++
-                }
-            }
-        }
-
-        if (!previous.isGameOver() && next.isGameOver()) {
-            gameOverCelebrationToken++
-        }
-    }
-
-    private fun resetCelebrations() {
-        lastResolvedMicro = -1
-        lastResolvedMark = SuperTrisRules.EMPTY
-        microCelebrationToken = 0
-        gameOverCelebrationToken = 0
-    }
-
     private fun pushUi(state: GameState, isAiThinking: Boolean) {
         _uiState.value = GameUiState(
             difficulty = state.difficulty,
+            gameMode = state.gameMode,
             humanMark = state.humanMark,
-            isHumanTurn = SuperTrisRules.isHumanTurn(state),
+            turnMark = state.turn,
+            isHumanTurn = isLocalTurn(state),
             isAiThinking = isAiThinking,
             forcedMicro = state.forcedMicro,
             cells = state.cells,
             microStatus = state.microStatus,
             macroStatus = state.macroStatus,
             isGameOver = state.isGameOver(),
-            lastResolvedMicro = lastResolvedMicro,
-            lastResolvedMark = lastResolvedMark,
-            microCelebrationToken = microCelebrationToken,
-            gameOverCelebrationToken = gameOverCelebrationToken,
+            lastResolvedMicro = celebrations.lastResolvedMicro,
+            lastResolvedMark = celebrations.lastResolvedMark,
+            microCelebrationToken = celebrations.microCelebrationToken,
+            gameOverCelebrationToken = celebrations.gameOverCelebrationToken,
         )
     }
 

@@ -53,17 +53,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import it.claudio.supertris.R
+import it.claudio.supertris.core.GameMode
 import it.claudio.supertris.core.SuperTrisRules
 import it.claudio.supertris.ui.components.MarkGlyph
 import it.claudio.supertris.ui.components.SuperBackground
 import it.claudio.supertris.ui.vm.GameSessionViewModel
+import it.claudio.supertris.ui.vm.GameUiState
 import kotlinx.coroutines.delay
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
+private fun markSymbol(mark: Int): String = if (mark == SuperTrisRules.X) "X" else "O"
+
 @Composable
-fun GameScreen(
+fun GameRoute(
     vm: GameSessionViewModel,
     onBackToMenu: () -> Unit,
     onNewGame: () -> Unit,
@@ -75,20 +79,41 @@ fun GameScreen(
         onDispose { vm.setGameVisible(false) }
     }
 
+    GameScreen(
+        ui = ui,
+        onTap = vm::onHumanTap,
+        onBackToMenu = onBackToMenu,
+        onNewGame = onNewGame,
+    )
+}
+
+@Composable
+fun GameScreen(
+    ui: GameUiState,
+    onTap: (micro: Int, cell: Int) -> Unit,
+    onBackToMenu: () -> Unit,
+    onNewGame: () -> Unit,
+    newGameLabel: String = stringResource(id = R.string.azione_nuova_partita),
+) {
     val winnerMark = when (ui.macroStatus) {
         SuperTrisRules.STATUS_X -> SuperTrisRules.X
         SuperTrisRules.STATUS_O -> SuperTrisRules.O
         else -> SuperTrisRules.EMPTY
     }
-    val headline = when (ui.macroStatus) {
-        SuperTrisRules.STATUS_X -> if (ui.humanMark == SuperTrisRules.X) stringResource(R.string.fine_partita_vittoria) else stringResource(R.string.fine_partita_sconfitta)
-        SuperTrisRules.STATUS_O -> if (ui.humanMark == SuperTrisRules.O) stringResource(R.string.fine_partita_vittoria) else stringResource(R.string.fine_partita_sconfitta)
-        else -> stringResource(R.string.fine_partita_pareggio)
+    val localWon = winnerMark != SuperTrisRules.EMPTY && winnerMark == ui.humanMark
+    val headline = when {
+        winnerMark == SuperTrisRules.EMPTY -> stringResource(R.string.fine_partita_pareggio)
+        ui.gameMode == GameMode.PASS_AND_PLAY -> stringResource(R.string.fine_partita_vince, markSymbol(winnerMark))
+        localWon -> stringResource(R.string.fine_partita_vittoria)
+        else -> stringResource(R.string.fine_partita_sconfitta)
     }
-    val subtitle = when (ui.macroStatus) {
-        SuperTrisRules.STATUS_X -> if (ui.humanMark == SuperTrisRules.X) stringResource(R.string.overlay_vittoria_finale) else stringResource(R.string.overlay_sconfitta_finale)
-        SuperTrisRules.STATUS_O -> if (ui.humanMark == SuperTrisRules.O) stringResource(R.string.overlay_vittoria_finale) else stringResource(R.string.overlay_sconfitta_finale)
-        else -> stringResource(R.string.overlay_pareggio_finale)
+    val subtitle = when {
+        ui.waitingRematch -> stringResource(R.string.rematch_in_attesa)
+        winnerMark == SuperTrisRules.EMPTY -> stringResource(R.string.overlay_pareggio_finale)
+        ui.gameMode == GameMode.PASS_AND_PLAY -> stringResource(R.string.overlay_vince_chiuso, markSymbol(winnerMark))
+        localWon -> stringResource(R.string.overlay_vittoria_finale)
+        ui.gameMode == GameMode.NEARBY -> stringResource(R.string.overlay_sconfitta_avversario)
+        else -> stringResource(R.string.overlay_sconfitta_finale)
     }
 
     SuperBackground {
@@ -98,11 +123,7 @@ fun GameScreen(
                     .fillMaxSize()
                     .padding(14.dp),
             ) {
-                TopInfoBar(
-                    humanMark = ui.humanMark,
-                    isHumanTurn = ui.isHumanTurn,
-                    isAiThinking = ui.isAiThinking,
-                )
+                TopInfoBar(ui = ui)
 
                 Spacer(modifier = Modifier.height(10.dp))
 
@@ -121,7 +142,7 @@ fun GameScreen(
                     celebrationToken = ui.microCelebrationToken,
                     resolvedMicro = ui.lastResolvedMicro,
                     resolvedMark = ui.lastResolvedMark,
-                    onTap = { micro, cell -> vm.onHumanTap(micro, cell) },
+                    onTap = onTap,
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -140,7 +161,7 @@ fun GameScreen(
                         modifier = Modifier.weight(1f),
                         onClick = onNewGame,
                     ) {
-                        Text(stringResource(id = R.string.azione_nuova_partita))
+                        Text(newGameLabel)
                     }
                 }
             }
@@ -151,6 +172,7 @@ fun GameScreen(
                 winnerMark = winnerMark,
                 headline = headline,
                 subtitle = subtitle,
+                newGameLabel = newGameLabel,
                 onBackToMenu = onBackToMenu,
                 onNewGame = onNewGame,
             )
@@ -159,13 +181,26 @@ fun GameScreen(
 }
 
 @Composable
-private fun TopInfoBar(
-    humanMark: Int,
-    isHumanTurn: Boolean,
-    isAiThinking: Boolean,
-) {
-    val symbol = if (humanMark == SuperTrisRules.X) "X" else "O"
-    val symbolColor = if (humanMark == SuperTrisRules.X) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.secondary
+private fun TopInfoBar(ui: GameUiState) {
+    val isPassAndPlay = ui.gameMode == GameMode.PASS_AND_PLAY
+    // In pass-and-play il colore segue chi deve giocare, altrimenti il simbolo locale.
+    val referenceMark = if (isPassAndPlay) ui.turnMark else ui.humanMark
+    val symbolColor = if (referenceMark == SuperTrisRules.X) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.secondary
+
+    val titleText = if (isPassAndPlay) {
+        stringResource(id = R.string.gioco_due_giocatori)
+    } else {
+        stringResource(id = R.string.gioco_tuo_simbolo, markSymbol(ui.humanMark))
+    }
+    val turnText = when {
+        isPassAndPlay -> stringResource(id = R.string.gioco_turno_di, markSymbol(ui.turnMark))
+        ui.isHumanTurn -> stringResource(id = R.string.gioco_turno_tuo)
+        ui.gameMode == GameMode.NEARBY -> stringResource(
+            id = R.string.gioco_turno_di,
+            ui.opponentName ?: stringResource(id = R.string.nearby_avversario),
+        )
+        else -> stringResource(id = R.string.gioco_turno_ai)
+    }
 
     Column(
         modifier = Modifier
@@ -183,7 +218,7 @@ private fun TopInfoBar(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
-            text = stringResource(id = R.string.gioco_tuo_simbolo, symbol),
+            text = titleText,
             color = symbolColor,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
@@ -195,12 +230,12 @@ private fun TopInfoBar(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = if (isHumanTurn) stringResource(id = R.string.gioco_turno_tuo) else stringResource(id = R.string.gioco_turno_ai),
+                text = turnText,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.88f),
                 style = MaterialTheme.typography.bodyLarge,
             )
 
-            AnimatedVisibility(visible = isAiThinking) {
+            AnimatedVisibility(visible = ui.isAiThinking) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(16.dp),
@@ -542,6 +577,7 @@ private fun GameOverCelebrationOverlay(
     winnerMark: Int,
     headline: String,
     subtitle: String,
+    newGameLabel: String,
     onBackToMenu: () -> Unit,
     onNewGame: () -> Unit,
 ) {
@@ -672,7 +708,7 @@ private fun GameOverCelebrationOverlay(
                             modifier = Modifier.weight(1f),
                             onClick = onNewGame,
                         ) {
-                            Text(stringResource(id = R.string.azione_nuova_partita))
+                            Text(newGameLabel)
                         }
                     }
                 }

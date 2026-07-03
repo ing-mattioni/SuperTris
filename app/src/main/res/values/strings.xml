@@ -4,7 +4,13 @@
 
     <string name="menu_nuova_partita">Nuova partita</string>
     <string name="menu_continua">Continua</string>
+    <string name="menu_gioca_in_2">Gioca in 2</string>
     <string name="menu_esci">Esci</string>
+
+    <string name="two_players_stesso_telefono">Sullo stesso telefono</string>
+    <string name="two_players_stesso_telefono_hint">Passatevi il telefono a ogni turno.</string>
+    <string name="two_players_due_telefoni">Su due telefoni vicini</string>
+    <string name="two_players_due_telefoni_hint">Connessione diretta, senza internet.</string>
     <string name="menu_privacy_policy">Privacy policy</string>
     <string name="privacy_policy_url">https://ing-mattioni.github.io/SuperTris/</string>
 
@@ -22,7 +28,10 @@
     <string name="gioco_tuo_simbolo">Il tuo simbolo: %1$s</string>
     <string name="gioco_turno_tuo">Turno: tu</string>
     <string name="gioco_turno_ai">Turno: AI</string>
+    <string name="gioco_turno_di">Turno: %1$s</string>
+    <string name="gioco_due_giocatori">Due giocatori</string>
     <string name="gioco_ai_pensa">Il computer sta pensando...</string>
+    <string name="nearby_avversario">avversario</string>
 
     <string name="dialog_titolo_fine_partita">Fine partita</string>
     <string name="micro_pareggio">P</string>
@@ -35,7 +44,35 @@
     <string name="fine_partita_vittoria">Hai vinto!</string>
     <string name="fine_partita_sconfitta">Hai perso.</string>
     <string name="fine_partita_pareggio">Pareggio.</string>
+    <string name="fine_partita_vince">Vince %1$s!</string>
+    <string name="overlay_vince_chiuso">%1$s ha chiuso il super tris.</string>
+    <string name="overlay_sconfitta_avversario">L\'avversario ha chiuso il super tris.</string>
 
     <string name="azione_menu">Menu principale</string>
     <string name="azione_nuova_partita">Nuova partita</string>
+    <string name="azione_annulla">Annulla</string>
+    <string name="azione_rivincita">Rivincita</string>
+
+    <string name="lobby_crea">Crea partita</string>
+    <string name="lobby_crea_hint">L\'altro telefono ti trover&#224; nelle vicinanze.</string>
+    <string name="lobby_cerca">Cerca partite</string>
+    <string name="lobby_cerca_hint">Trova chi ha creato una partita vicino a te.</string>
+    <string name="lobby_in_attesa">In attesa dell\'avversario&#8230;</string>
+    <string name="lobby_ricerca">Ricerca partite vicine&#8230;</string>
+    <string name="lobby_nessuna_partita">Nessuna partita trovata per ora.</string>
+    <string name="lobby_tocca_per_unirti">Tocca per unirti</string>
+    <string name="lobby_connessione">Connessione in corso&#8230;</string>
+    <string name="lobby_connessione_con">Connessione con %1$s</string>
+    <string name="lobby_codice_hint">Controlla che il codice sia uguale sull\'altro telefono, poi accetta su entrambi.</string>
+    <string name="lobby_accetta">Accetta</string>
+    <string name="lobby_rifiuta">Rifiuta</string>
+    <string name="lobby_connessione_fallita">Connessione non riuscita. Avvicinate i telefoni e riprovate.</string>
+    <string name="lobby_versione_incompatibile">Le versioni dell\'app non sono compatibili. Aggiornate entrambi i telefoni.</string>
+    <string name="lobby_riprova">Riprova</string>
+    <string name="lobby_permessi_testo">Per trovare l\'altro telefono servono i permessi Bluetooth e dispositivi vicini. Nessuna posizione viene registrata e nessun dato lascia i due telefoni.</string>
+    <string name="lobby_permessi_bottone">Concedi permessi</string>
+
+    <string name="rematch_in_attesa">In attesa dell\'avversario per la rivincita&#8230;</string>
+    <string name="disconnesso_titolo">Connessione persa</string>
+    <string name="disconnesso_testo">Il collegamento con l\'altro telefono si &#232; interrotto.</string>
 </resources>

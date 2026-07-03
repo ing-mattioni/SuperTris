@@ -29,14 +29,36 @@ object SuperTrisRules {
         else -> error("Mark non valido: $mark")
     }
 
-    fun newGame(difficulty: Difficulty, random: Random = Random.Default): GameState {
+    fun newGame(
+        difficulty: Difficulty,
+        gameMode: GameMode = GameMode.VS_AI,
+        random: Random = Random.Default,
+    ): GameState {
         val humanMark = if (random.nextBoolean()) X else O
         val firstTurnIsHuman = random.nextBoolean()
         val firstTurn = if (firstTurnIsHuman) humanMark else other(humanMark)
 
         return GameState(
             difficulty = difficulty,
+            gameMode = gameMode,
             humanMark = humanMark,
+            turn = firstTurn,
+            forcedMicro = -1,
+            cells = IntArray(81) { EMPTY },
+            microStatus = IntArray(9) { STATUS_IN_CORSO },
+            macroStatus = STATUS_IN_CORSO,
+            moveCount = 0,
+        )
+    }
+
+    // Partita NEARBY: simboli e primo turno decisi dall'host, uguali su entrambi i telefoni.
+    fun newNearbyGame(localMark: Int, firstTurn: Int): GameState {
+        require(localMark == X || localMark == O) { "Mark non valido: $localMark" }
+        require(firstTurn == X || firstTurn == O) { "Turno non valido: $firstTurn" }
+        return GameState(
+            difficulty = Difficulty.FACILE, // non usata: nessuna AI in questa modalita'
+            gameMode = GameMode.NEARBY,
+            humanMark = localMark,
             turn = firstTurn,
             forcedMicro = -1,
             cells = IntArray(81) { EMPTY },
