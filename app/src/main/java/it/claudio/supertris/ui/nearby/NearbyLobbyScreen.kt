@@ -21,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,7 +53,17 @@ fun NearbyLobbyScreen(
     onGameReady: () -> Unit,
 ) {
     val state by vm.lobbyState.collectAsState()
+    val savedNickname by vm.savedNickname.collectAsState()
     val ctx = LocalContext.current
+
+    var nicknameField by remember { mutableStateOf("") }
+    var nicknameLoaded by remember { mutableStateOf(false) }
+    LaunchedEffect(savedNickname) {
+        if (!nicknameLoaded && savedNickname.isNotBlank()) {
+            nicknameField = savedNickname
+            nicknameLoaded = true
+        }
+    }
 
     var permissionsGranted by remember { mutableStateOf(NearbyPermissions.allGranted(ctx)) }
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -98,8 +109,10 @@ fun NearbyLobbyScreen(
 
                     else -> when (val st = state) {
                         LobbyState.Idle -> RoleChoiceContent(
-                            onHost = { vm.startHosting() },
-                            onJoin = { vm.startJoining() },
+                            nickname = nicknameField,
+                            onNicknameChange = { nicknameField = it; nicknameLoaded = true },
+                            onHost = { vm.startHosting(nicknameField) },
+                            onJoin = { vm.startJoining(nicknameField) },
                             onBack = leaveAndGoBack,
                         )
 
@@ -187,10 +200,20 @@ private fun PermissionContent(
 
 @Composable
 private fun RoleChoiceContent(
+    nickname: String,
+    onNicknameChange: (String) -> Unit,
     onHost: () -> Unit,
     onJoin: () -> Unit,
     onBack: () -> Unit,
 ) {
+    OutlinedTextField(
+        modifier = Modifier.fillMaxWidth(),
+        value = nickname,
+        onValueChange = { if (it.length <= 20) onNicknameChange(it) },
+        singleLine = true,
+        label = { Text(stringResource(id = R.string.online_nickname_label)) },
+    )
+    Spacer(modifier = Modifier.height(14.dp))
     LobbyCard(
         title = stringResource(id = R.string.lobby_crea),
         subtitle = stringResource(id = R.string.lobby_crea_hint),

@@ -8,10 +8,12 @@ import it.claudio.supertris.core.GameState
 import it.claudio.supertris.core.Move
 import it.claudio.supertris.core.SuperTrisRules
 import it.claudio.supertris.data.GameRepository
+import it.claudio.supertris.net.GameSummary
 import it.claudio.supertris.net.JoinResult
 import it.claudio.supertris.net.OnlineRoom
 import it.claudio.supertris.net.OnlineRoomClient
 import it.claudio.supertris.net.buildLocalState
+import it.claudio.supertris.net.toSummary
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -60,9 +62,11 @@ class OnlineViewModel(
         .map { it ?: "" }
         .stateIn(viewModelScope, SharingStarted.Eagerly, "")
 
-    val resumeCode: StateFlow<String?> = repo.onlineRoomCodeFlow
-        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+    // "Le mie partite": osservata solo mentre la lobby e' visibile.
+    private val _myGames = MutableStateFlow<List<GameSummary>>(emptyList())
+    val myGames: StateFlow<List<GameSummary>> = _myGames
 
+    private var gamesJob: Job? = null
     private var observeJob: Job? = null
     private var presenceJob: Job? = null
     private var currentRoom: OnlineRoom? = null
@@ -72,6 +76,23 @@ class OnlineViewModel(
     private var lastMovesCount = 0
     private var lastRound = -1
     private val celebrations = CelebrationTracker()
+
+    // ---------- Lista partite ----------
+
+    fun startGamesListener() {
+        if (gamesJob != null) return
+        gamesJob = viewModelScope.launch {
+            val uid = runCatching { client.ensureSignedIn() }.getOrNull() ?: return@launch
+            client.observeMyGames(uid).collect { rooms ->
+                _myGames.value = rooms.mapNotNull { it.toSummary(uid) }
+            }
+        }
+    }
+
+    fun stopGamesListener() {
+        gamesJob?.cancel()
+        gamesJob = null
+    }
 
     // ---------- Azioni lobby ----------
 
@@ -84,7 +105,6 @@ class OnlineViewModel(
                 val room = client.createRoom(name)
                 isHost = true
                 roomCode = room.code
-                repo.saveOnlineRoomCode(room.code)
                 startSession(room.code)
                 _lobbyState.value = OnlineLobbyState.WaitingGuest(room.code)
             } catch (e: Exception) {
@@ -108,7 +128,6 @@ class OnlineViewModel(
                     is JoinResult.Ok -> {
                         isHost = result.room.hostUid == client.uid
                         roomCode = result.room.code
-                        repo.saveOnlineRoomCode(result.room.code)
                         startSession(result.room.code)
                     }
                     JoinResult.NotFound -> _lobbyState.value = OnlineLobbyState.Failed(OnlineFailure.NOT_FOUND)
@@ -121,15 +140,13 @@ class OnlineViewModel(
         }
     }
 
-    /** Rientra nell'ultima stanza salvata (partita ancora valida entro il TTL). */
-    fun resumeRoom() {
-        val code = resumeCode.value ?: return
+    /** Apre una partita dalla lista "Le mie partite" (o riprende dopo un riavvio). */
+    fun openGame(code: String) {
         _lobbyState.value = OnlineLobbyState.Working
         viewModelScope.launch {
             try {
                 val room = client.fetchRoomIfParticipant(code)
                 if (room == null || room.status == "finished") {
-                    repo.saveOnlineRoomCode(null)
                     _lobbyState.value = OnlineLobbyState.Failed(OnlineFailure.ROOM_GONE)
                 } else {
                     isHost = room.hostUid == client.uid
@@ -149,7 +166,6 @@ class OnlineViewModel(
         if (code != null) {
             viewModelScope.launch {
                 client.leaveRoom(code, isHost = true, stillWaiting = true)
-                repo.saveOnlineRoomCode(null)
             }
         }
         _lobbyState.value = OnlineLobbyState.Idle
@@ -162,15 +178,11 @@ class OnlineViewModel(
     }
 
     /**
-     * Uscita dalla partita. Se la partita e' in corso resta valida sul server
-     * (entro il TTL) e si puo' riprendere; se e' finita, il codice viene scordato.
+     * Uscita dalla partita: resta valida sul server entro il TTL e si
+     * ritrova nella lista "Le mie partite".
      */
     fun exitGame() {
-        val finished = currentState?.isGameOver() == true || _roomGone.value
         stopSession()
-        if (finished) {
-            viewModelScope.launch { repo.saveOnlineRoomCode(null) }
-        }
         _lobbyState.value = OnlineLobbyState.Idle
     }
 

@@ -7,14 +7,19 @@ import it.claudio.supertris.core.GameMode
 import it.claudio.supertris.core.GameState
 import it.claudio.supertris.core.Move
 import it.claudio.supertris.core.SuperTrisRules
+import it.claudio.supertris.data.GameRepository
 import it.claudio.supertris.net.NearbyEvent
 import it.claudio.supertris.net.NearbyTransport
 import it.claudio.supertris.net.NetMessage
 import it.claudio.supertris.net.PROTOCOL_VERSION
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 data class LobbyEndpoint(val endpointId: String, val name: String)
@@ -38,8 +43,25 @@ sealed interface LobbyState {
  */
 class NearbyViewModel(
     private val transport: NearbyTransport,
-    private val localName: String,
+    private val deviceFallbackName: String,
+    private val repo: GameRepository,
 ) : ViewModel() {
+
+    /** Nickname salvato, per precompilare il campo nella lobby. */
+    val savedNickname: StateFlow<String> = repo.nicknameFlow
+        .map { it ?: "" }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, "")
+
+    // Nome mostrato all'altro telefono: nickname se presente, altrimenti il modello.
+    private var localName: String = deviceFallbackName
+
+    private fun applyNickname(nicknameInput: String) {
+        val name = nicknameInput.trim()
+        localName = name.ifBlank { deviceFallbackName }
+        if (name.isNotBlank()) {
+            viewModelScope.launch { repo.saveNickname(name) }
+        }
+    }
 
     private val _lobbyState = MutableStateFlow<LobbyState>(LobbyState.Idle)
     val lobbyState: StateFlow<LobbyState> = _lobbyState
@@ -68,14 +90,16 @@ class NearbyViewModel(
 
     // ---------- Azioni lobby ----------
 
-    fun startHosting() {
+    fun startHosting(nickname: String = "") {
+        applyNickname(nickname)
         resetSession()
         isHost = true
         _lobbyState.value = LobbyState.Advertising
         transport.startAdvertising(localName)
     }
 
-    fun startJoining() {
+    fun startJoining(nickname: String = "") {
+        applyNickname(nickname)
         resetSession()
         isHost = false
         _lobbyState.value = LobbyState.Discovering(emptyList())
@@ -356,11 +380,12 @@ class NearbyViewModel(
 
     class Factory(
         private val transport: NearbyTransport,
-        private val localName: String,
+        private val deviceFallbackName: String,
+        private val repo: GameRepository,
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             @Suppress("UNCHECKED_CAST")
-            return NearbyViewModel(transport, localName) as T
+            return NearbyViewModel(transport, deviceFallbackName, repo) as T
         }
     }
 }

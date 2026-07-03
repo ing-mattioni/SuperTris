@@ -36,7 +36,19 @@
     <string name="online_crea_hint">Ricevi un codice da mandare al tuo avversario.</string>
     <string name="online_unisciti">Unisciti</string>
     <string name="online_codice_label">Codice stanza</string>
-    <string name="online_riprendi">Riprendi partita (%1$s)</string>
+    <string name="online_mie_partite">Le mie partite</string>
+    <string name="online_vs">Contro %1$s</string>
+    <string name="online_partita_codice">Partita %1$s</string>
+    <string name="online_stato_tuo_turno">Tocca a te!</string>
+    <string name="online_stato_turno_avversario">Turno dell\'avversario</string>
+    <string name="online_stato_in_attesa_sfidante">In attesa di uno sfidante</string>
+    <string name="online_stato_finita">Terminata</string>
+
+    <string name="notif_channel_name">Turni online</string>
+    <string name="notif_channel_desc">Ti avvisa quando &#232; il tuo turno nelle partite a distanza.</string>
+    <string name="notif_tuo_turno_titolo">&#200; il tuo turno!</string>
+    <string name="notif_tuo_turno_testo">%1$s ha mosso. Tocca a te!</string>
+    <string name="notif_tuo_turno_testo_generico">Tocca a te in una partita online.</string>
     <string name="online_in_attesa">In attesa dell\'avversario&#8230;</string>
     <string name="online_codice_condividi">Condividi il codice</string>
     <string name="online_condividi_testo">Sfidami a Super Tris! Apri l\'app, vai su "Gioca in 2 &#8594; A distanza" e inserisci il codice %1$s</string>
