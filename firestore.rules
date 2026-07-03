@@ -1,0 +1,70 @@
+rules_version = '2';
+
+// Regole Firestore per SuperTris online (v1.3) — PRIMA STESURA, da validare
+// con l'Emulator Suite prima del deploy (vedi FIREBASE_SETUP.md).
+//
+// Modello di fiducia: le regole impediscono accessi di estranei e scritture
+// strutturalmente invalide; la validazione completa delle regole di gioco
+// avviene client-side su entrambi i telefoni (regole deterministiche).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /rooms/{code} {
+
+      function signedIn() {
+        return request.auth != null;
+      }
+
+      function isParticipant() {
+        return signedIn() &&
+          (request.auth.uid == resource.data.hostUid ||
+           request.auth.uid == resource.data.guestUid);
+      }
+
+      // Lettura singola: i partecipanti sempre; chiunque (autenticato e con
+      // il codice) solo finche' la stanza aspetta un avversario.
+      allow get: if signedIn() &&
+        (resource.data.guestUid == null || isParticipant());
+
+      // Mai elencare le stanze: il codice e' il segreto.
+      allow list: if false;
+
+      // Creazione: sei l'host, stanza in attesa, nessuna mossa.
+      allow create: if signedIn()
+        && request.resource.data.hostUid == request.auth.uid
+        && request.resource.data.guestUid == null
+        && request.resource.data.status == 'waiting'
+        && request.resource.data.moves.size() == 0
+        && request.resource.data.protocolVersion is int;
+
+      // Aggiornamento: join nello slot libero, oppure partecipanti
+      // (mosse in append, rivincita, heartbeat). Campi identita' immutabili.
+      allow update: if signedIn()
+        && request.resource.data.hostUid == resource.data.hostUid
+        && (
+          // Join: slot guest libero, lo prendi tu, mosse intatte.
+          (resource.data.guestUid == null
+            && request.resource.data.guestUid == request.auth.uid
+            && request.resource.data.moves == resource.data.moves)
+          ||
+          // Partecipanti: mosse solo in crescita (o reset rivincita da host).
+          (isParticipant()
+            && request.resource.data.guestUid == resource.data.guestUid
+            && (request.resource.data.moves.size() >= resource.data.moves.size()
+                || (request.auth.uid == resource.data.hostUid
+                    && resource.data.hostRematch == true
+                    && resource.data.guestRematch == true)))
+        );
+
+      // Cancellazione: solo l'host, solo se ancora in attesa.
+      allow delete: if signedIn()
+        && request.auth.uid == resource.data.hostUid
+        && resource.data.guestUid == null;
+    }
+
+    // Tutto il resto: negato.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
