@@ -15,7 +15,7 @@ Super Tris
 
 ## Descrizione breve
 
-Super Tic Tac Toe in italiano con IA a 3 livelli e salvataggio locale.
+Super Tic Tac Toe in italiano: IA a 3 livelli e sfide in 2 su due telefoni.
 
 ## Descrizione completa
 
@@ -23,9 +23,13 @@ Super Tris porta su Android il Super Tic Tac Toe con un'interfaccia moderna, ani
 
 Gioca contro l'IA e prova a conquistare la griglia principale vincendo le micro-griglie. Ogni nuova partita sceglie in modo casuale simbolo e ordine di gioco, cosi' ogni sfida parte in modo diverso.
 
+Sfida anche un amico: sullo stesso telefono passandovi il dispositivo, oppure su due telefoni vicini con connessione diretta, senza bisogno di internet.
+
 Caratteristiche principali:
 - Modalita' giocatore contro IA
 - Tre livelli di difficolta': Facile, Medio e Difficile
+- Gioca in 2 sullo stesso telefono (pass-and-play)
+- Gioca in 2 su due telefoni vicini, senza internet
 - Salvataggio automatico della partita dopo ogni mossa
 - Pulsante Continua disponibile quando esiste una partita in corso
 - Interfaccia completamente in italiano

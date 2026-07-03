@@ -2,8 +2,13 @@
 
 Base attuale del progetto `Super Tris`.
 
-Inferenza dal codice al 2026-03-06:
-- nessun permesso sensibile dichiarato nel manifest
+Inferenza dal codice al 2026-07-03 (v1.1):
+- permessi Bluetooth/Nearby dichiarati SOLO per la modalita' "due telefoni
+  vicini" (Nearby Connections): BLUETOOTH_SCAN e NEARBY_WIFI_DEVICES con
+  flag `neverForLocation`, localizzazione legacy solo su Android 12 e
+  precedenti come richiesto dalla piattaforma
+- la comunicazione multiplayer avviene esclusivamente tra i due dispositivi
+  (peer-to-peer locale), nessun server coinvolto
 - nessuna raccolta dati verso server visibile nel codice
 - salvataggio locale della partita tramite DataStore sul dispositivo
 - nessun account utente, analytics, advertising o login implementato
