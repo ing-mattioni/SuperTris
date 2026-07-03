@@ -2,6 +2,14 @@
 
 Riferimento ufficiale: Google Play richiede asset specifici per icona, feature graphic e screenshot. Per il listing principale di `Super Tris`, prepara almeno questi materiali.
 
+## Pronti nel repository (cartella `play-assets/`)
+
+- `play-assets/play-icon-512.png` — icona Play Store 512x512, PNG 32 bit ✔
+- `play-assets/feature-graphic-1024x500.png` — feature graphic 1024x500, PNG 24 bit senza alpha ✔
+
+Mancano solo gli screenshot, da fare direttamente sul telefono (set consigliato sotto;
+ora c'e' anche la lobby "Gioca in 2" che merita uno screenshot).
+
 ## Obbligatori
 
 - Icona Play Store:
