@@ -1,80 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape android:shape="rectangle">
-            <corners android:radius="28dp" />
-            <solid android:color="@color/brand_midnight" />
-        </shape>
-    </item>
+<!-- Marchio SuperTris: card scura con bordo lime, griglia 2x2,
+     O ambra in alto a sinistra e X ciano in basso a destra.
+     Vettoriale puro: scala correttamente a qualsiasi dimensione
+     (menu, splash, launcher), a differenza del vecchio layer-list
+     con inset fissi in dp che si deformava. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="128dp"
+    android:height="128dp"
+    android:viewportWidth="128"
+    android:viewportHeight="128">
 
-    <item android:left="28dp" android:right="28dp" android:top="18dp" android:bottom="18dp">
-        <shape android:shape="rectangle">
-            <corners android:radius="22dp" />
-            <stroke
-                android:width="3dp"
-                android:color="@color/brand_lime" />
-            <solid android:color="#00000000" />
-        </shape>
-    </item>
+    <!-- Card scura arrotondata -->
+    <path
+        android:fillColor="@color/brand_midnight"
+        android:pathData="M28,0 H100 A28,28 0 0 1 128,28 V100 A28,28 0 0 1 100,128 H28 A28,28 0 0 1 0,100 V28 A28,28 0 0 1 28,0 Z" />
 
-    <item android:left="64dp" android:right="64dp" android:top="36dp" android:bottom="36dp">
-        <shape android:shape="rectangle">
-            <corners android:radius="3dp" />
-            <solid android:color="@color/brand_grid" />
-        </shape>
-    </item>
+    <!-- Bordo lime -->
+    <path
+        android:strokeColor="@color/brand_lime"
+        android:strokeWidth="3.5"
+        android:fillColor="#00000000"
+        android:pathData="M29,5 H99 A24,24 0 0 1 123,29 V99 A24,24 0 0 1 99,123 H29 A24,24 0 0 1 5,99 V29 A24,24 0 0 1 29,5 Z" />
 
-    <item android:left="100dp" android:right="28dp" android:top="36dp" android:bottom="36dp">
-        <shape android:shape="rectangle">
-            <corners android:radius="3dp" />
-            <solid android:color="@color/brand_grid" />
-        </shape>
-    </item>
+    <!-- Croce della griglia 2x2, con spiraglio al centro -->
+    <path
+        android:strokeColor="@color/brand_grid"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:pathData="M64,22 L64,58 M64,70 L64,106 M22,64 L58,64 M70,64 L106,64" />
 
-    <item android:left="36dp" android:right="36dp" android:top="64dp" android:bottom="64dp">
-        <shape android:shape="rectangle">
-            <corners android:radius="3dp" />
-            <solid android:color="@color/brand_grid" />
-        </shape>
-    </item>
+    <!-- O ambra nel quadrante in alto a sinistra -->
+    <path
+        android:strokeColor="@color/brand_amber"
+        android:strokeWidth="6.5"
+        android:fillColor="#00000000"
+        android:pathData="M26,40 a14,14 0 1 0 28,0 a14,14 0 1 0 -28,0" />
 
-    <item android:left="36dp" android:right="36dp" android:top="100dp" android:bottom="28dp">
-        <shape android:shape="rectangle">
-            <corners android:radius="3dp" />
-            <solid android:color="@color/brand_grid" />
-        </shape>
-    </item>
-
-    <item android:left="38dp" android:right="94dp" android:top="38dp" android:bottom="94dp">
-        <shape android:shape="oval">
-            <stroke
-                android:width="8dp"
-                android:color="@color/brand_amber" />
-            <solid android:color="#00000000" />
-        </shape>
-    </item>
-
-    <item android:left="94dp" android:right="38dp" android:top="94dp" android:bottom="38dp">
-        <rotate android:fromDegrees="45">
-            <shape android:shape="rectangle">
-                <corners android:radius="6dp" />
-                <size
-                    android:width="10dp"
-                    android:height="46dp" />
-                <solid android:color="@color/brand_cyan" />
-            </shape>
-        </rotate>
-    </item>
-
-    <item android:left="94dp" android:right="38dp" android:top="94dp" android:bottom="38dp">
-        <rotate android:fromDegrees="-45">
-            <shape android:shape="rectangle">
-                <corners android:radius="6dp" />
-                <size
-                    android:width="10dp"
-                    android:height="46dp" />
-                <solid android:color="@color/brand_cyan" />
-            </shape>
-        </rotate>
-    </item>
-</layer-list>
+    <!-- X ciano nel quadrante in basso a destra -->
+    <path
+        android:strokeColor="@color/brand_cyan"
+        android:strokeWidth="7"
+        android:strokeLineCap="round"
+        android:pathData="M75,75 L101,101 M101,75 L75,101" />
+</vector>

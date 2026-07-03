@@ -16,6 +16,7 @@ import it.claudio.supertris.ui.game.GameRoute
 import it.claudio.supertris.ui.menu.MenuScreen
 import it.claudio.supertris.ui.nearby.NearbyGameRoute
 import it.claudio.supertris.ui.nearby.NearbyLobbyScreen
+import it.claudio.supertris.ui.rules.RulesScreen
 import it.claudio.supertris.ui.twoplayers.TwoPlayersScreen
 import it.claudio.supertris.ui.vm.GameSessionViewModel
 import it.claudio.supertris.ui.vm.MenuViewModel
@@ -28,6 +29,7 @@ private object Routes {
     const val TWO_PLAYERS = "two_players"
     const val NEARBY_LOBBY = "nearby_lobby"
     const val NEARBY_GAME = "nearby_game"
+    const val RULES = "rules"
 }
 
 @Composable
@@ -70,8 +72,12 @@ fun SuperTrisApp() {
                 onNuovaPartita = { goToDifficulty() },
                 onContinua = { goToGame() },
                 onGiocaIn2 = { navController.navigate(Routes.TWO_PLAYERS) },
+                onComeSiGioca = { navController.navigate(Routes.RULES) },
                 onEsci = { /* gestito dentro la schermata */ },
             )
+        }
+        composable(Routes.RULES) {
+            RulesScreen(onBack = { navController.popBackStack() })
         }
         composable(Routes.DIFFICULTY) {
             DifficultyScreen(

@@ -5,7 +5,23 @@
     <string name="menu_nuova_partita">Nuova partita</string>
     <string name="menu_continua">Continua</string>
     <string name="menu_gioca_in_2">Gioca in 2</string>
+    <string name="menu_come_si_gioca">Come si gioca</string>
     <string name="menu_esci">Esci</string>
+
+    <string name="rules_tabellone_titolo">Il tabellone</string>
+    <string name="rules_tabellone_testo">Il tabellone &#232; una griglia grande formata da 9 micro-griglie. Ogni micro-griglia &#232; un tris classico 3&#215;3.</string>
+    <string name="rules_obiettivo_titolo">L\'obiettivo</string>
+    <string name="rules_obiettivo_testo">Fai tris dentro una micro-griglia e la conquisti: quella casella grande diventa tua. Metti in fila 3 micro-griglie conquistate (riga, colonna o diagonale) e chiudi il Super Tris.</string>
+    <string name="rules_regola_titolo">La regola d\'oro</string>
+    <string name="rules_regola_testo">La posizione della cella in cui giochi decide dove giocher&#224; l\'avversario: la sua mossa successiva deve avvenire nella micro-griglia che sta nella stessa posizione della tua cella. Esempio: giochi nella cella in alto a destra? L\'avversario &#232; obbligato a giocare nella micro-griglia in alto a destra. La griglia obbligata &#232; sempre quella evidenziata dal bordo verde.</string>
+    <string name="rules_diagramma_tu">Tu giochi qui</string>
+    <string name="rules_diagramma_avversario">L\'avversario va qui</string>
+    <string name="rules_libera_titolo">Griglia libera</string>
+    <string name="rules_libera_testo">Se la micro-griglia di destinazione &#232; gi&#224; chiusa (vinta o piena), l\'avversario &#232; libero di giocare in qualsiasi micro-griglia ancora aperta.</string>
+    <string name="rules_strategia_titolo">Il consiglio</string>
+    <string name="rules_strategia_testo">Ogni mossa vale doppio: scegli dove mettere il tuo segno, ma anche dove mandare l\'avversario. Evita di spedirlo in una griglia dove pu&#242; vincere subito!</string>
+    <string name="rules_modalita_titolo">Le modalit&#224;</string>
+    <string name="rules_modalita_testo">Sfida l\'AI su tre livelli di difficolt&#224;, gioca in 2 sullo stesso telefono oppure su due telefoni vicini, senza internet.</string>
 
     <string name="two_players_stesso_telefono">Sullo stesso telefono</string>
     <string name="two_players_stesso_telefono_hint">Passatevi il telefono a ogni turno.</string>
@@ -48,7 +64,7 @@
     <string name="overlay_vince_chiuso">%1$s ha chiuso il super tris.</string>
     <string name="overlay_sconfitta_avversario">L\'avversario ha chiuso il super tris.</string>
 
-    <string name="azione_menu">Menu principale</string>
+    <string name="azione_menu">Menu</string>
     <string name="azione_nuova_partita">Nuova partita</string>
     <string name="azione_annulla">Annulla</string>
     <string name="azione_rivincita">Rivincita</string>

@@ -41,6 +41,7 @@ fun MenuScreen(
     onNuovaPartita: () -> Unit,
     onContinua: () -> Unit,
     onGiocaIn2: () -> Unit,
+    onComeSiGioca: () -> Unit,
     onEsci: () -> Unit,
 ) {
     val hasSavedGame by vm.hasInProgressGame.collectAsState()
@@ -95,6 +96,15 @@ fun MenuScreen(
                 BigMenuButton(
                     text = stringResource(id = R.string.menu_gioca_in_2),
                     onClick = onGiocaIn2,
+                )
+                Spacer(modifier = Modifier.height(14.dp))
+                BigMenuButton(
+                    text = stringResource(id = R.string.menu_come_si_gioca),
+                    onClick = onComeSiGioca,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.42f),
+                    ),
+                    contentColor = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(modifier = Modifier.height(14.dp))
                 BigMenuButton(
