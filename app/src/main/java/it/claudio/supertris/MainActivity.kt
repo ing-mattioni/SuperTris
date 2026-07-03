@@ -7,6 +7,7 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import it.claudio.supertris.notifications.TurnNotificationWorker
 import it.claudio.supertris.ui.SuperTrisApp
 import it.claudio.supertris.ui.theme.SuperTrisTheme
 
@@ -19,9 +20,10 @@ class MainActivity : ComponentActivity() {
             statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
             navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
         )
+        val openOnlineLobby = intent?.getBooleanExtra(TurnNotificationWorker.EXTRA_OPEN_ONLINE, false) == true
         setContent {
             SuperTrisTheme {
-                SuperTrisApp()
+                SuperTrisApp(startInOnlineLobby = openOnlineLobby)
             }
         }
     }

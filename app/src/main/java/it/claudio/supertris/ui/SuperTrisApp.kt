@@ -1,6 +1,7 @@
 package it.claudio.supertris.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -38,14 +39,23 @@ private object Routes {
 }
 
 @Composable
-fun SuperTrisApp() {
+fun SuperTrisApp(
+    startInOnlineLobby: Boolean = false,
+) {
     val navController = rememberNavController()
     val app = LocalContext.current.applicationContext as SuperTrisApplication
+
+    // Aperto da una notifica "e' il tuo turno": vai dritto alla lobby online.
+    LaunchedEffect(Unit) {
+        if (startInOnlineLobby && app.onlineAvailable) {
+            navController.navigate(Routes.ONLINE_LOBBY)
+        }
+    }
 
     val menuVm: MenuViewModel = viewModel(factory = MenuViewModel.Factory(app.gameRepository))
     val gameVm: GameSessionViewModel = viewModel(factory = GameSessionViewModel.Factory(app.gameRepository))
     val nearbyVm: NearbyViewModel = viewModel(
-        factory = NearbyViewModel.Factory(app.nearbyTransport, Build.MODEL ?: "Android"),
+        factory = NearbyViewModel.Factory(app.nearbyTransport, Build.MODEL ?: "Android", app.gameRepository),
     )
     val onlineVm: OnlineViewModel = viewModel(
         factory = OnlineViewModel.Factory(app.gameRepository, app.onlineRoomClient),
