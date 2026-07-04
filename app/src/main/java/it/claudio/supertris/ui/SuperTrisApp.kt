@@ -5,21 +5,26 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import android.os.Build
 import it.claudio.supertris.SuperTrisApplication
 import it.claudio.supertris.core.Difficulty
 import it.claudio.supertris.core.GameMode
 import it.claudio.supertris.ui.difficulty.DifficultyScreen
 import it.claudio.supertris.ui.game.GameRoute
+import it.claudio.supertris.ui.history.HistoryScreen
+import it.claudio.supertris.ui.history.ReplayScreen
 import it.claudio.supertris.ui.menu.MenuScreen
 import it.claudio.supertris.ui.nearby.NearbyGameRoute
 import it.claudio.supertris.ui.nearby.NearbyLobbyScreen
 import it.claudio.supertris.ui.online.OnlineGameRoute
 import it.claudio.supertris.ui.online.OnlineLobbyScreen
 import it.claudio.supertris.ui.rules.RulesScreen
+import it.claudio.supertris.ui.stats.StatsScreen
 import it.claudio.supertris.ui.twoplayers.TwoPlayersScreen
 import it.claudio.supertris.ui.vm.GameSessionViewModel
 import it.claudio.supertris.ui.vm.MenuViewModel
@@ -36,6 +41,11 @@ private object Routes {
     const val ONLINE_LOBBY = "online_lobby"
     const val ONLINE_GAME = "online_game"
     const val RULES = "rules"
+    const val STATS = "stats"
+    const val HISTORY = "history"
+    const val REPLAY = "replay/{index}"
+
+    fun replay(index: Int) = "replay/$index"
 }
 
 @Composable
@@ -91,11 +101,36 @@ fun SuperTrisApp(
                 onContinua = { goToGame() },
                 onGiocaIn2 = { navController.navigate(Routes.TWO_PLAYERS) },
                 onComeSiGioca = { navController.navigate(Routes.RULES) },
+                onStatistiche = { navController.navigate(Routes.STATS) },
                 onEsci = { /* gestito dentro la schermata */ },
             )
         }
         composable(Routes.RULES) {
             RulesScreen(onBack = { navController.popBackStack() })
+        }
+        composable(Routes.STATS) {
+            StatsScreen(
+                repo = app.gameRepository,
+                onHistory = { navController.navigate(Routes.HISTORY) },
+                onBack = { navController.popBackStack() },
+            )
+        }
+        composable(Routes.HISTORY) {
+            HistoryScreen(
+                repo = app.gameRepository,
+                onOpenReplay = { index -> navController.navigate(Routes.replay(index)) },
+                onBack = { navController.popBackStack() },
+            )
+        }
+        composable(
+            route = Routes.REPLAY,
+            arguments = listOf(navArgument("index") { type = NavType.IntType }),
+        ) { backStackEntry ->
+            ReplayScreen(
+                repo = app.gameRepository,
+                entryIndex = backStackEntry.arguments?.getInt("index") ?: 0,
+                onBack = { navController.popBackStack() },
+            )
         }
         composable(Routes.DIFFICULTY) {
             DifficultyScreen(

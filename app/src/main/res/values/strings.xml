@@ -6,7 +6,31 @@
     <string name="menu_continua">Continua</string>
     <string name="menu_gioca_in_2">Gioca in 2</string>
     <string name="menu_come_si_gioca">Come si gioca</string>
+    <string name="menu_statistiche">Statistiche</string>
     <string name="menu_esci">Esci</string>
+
+    <string name="stats_titolo">Statistiche</string>
+    <string name="stats_vs_ai">Contro l\'AI</string>
+    <string name="stats_pass_play">In 2 sullo stesso telefono</string>
+    <string name="stats_nearby">In 2 su due telefoni vicini</string>
+    <string name="stats_online">A distanza</string>
+    <string name="stats_vittorie">Vittorie</string>
+    <string name="stats_sconfitte">Sconfitte</string>
+    <string name="stats_pareggi">Pareggi</string>
+    <string name="stats_vittorie_x">Vittorie di X</string>
+    <string name="stats_vittorie_o">Vittorie di O</string>
+    <string name="stats_wld">%1$dV &#183; %2$dS &#183; %3$dP</string>
+    <string name="stats_nessuna">Nessuna partita completata finora. Gioca la prima!</string>
+    <string name="stats_cronologia">Cronologia partite</string>
+
+    <string name="history_titolo">Cronologia</string>
+    <string name="history_vuota">Le partite completate compariranno qui.</string>
+    <string name="history_vittoria">Hai vinto</string>
+    <string name="history_sconfitta">Hai perso</string>
+    <string name="history_vince_x">Vince X</string>
+    <string name="history_vince_o">Vince O</string>
+    <string name="history_vs_ai">Contro l\'AI &#183; %1$s</string>
+    <string name="replay_mossa">Mossa %1$d di %2$d</string>
 
     <string name="rules_tabellone_titolo">Il tabellone</string>
     <string name="rules_tabellone_testo">Il tabellone &#232; una griglia grande formata da 9 micro-griglie. Ogni micro-griglia &#232; un tris classico 3&#215;3.</string>
