@@ -141,6 +141,7 @@ object SuperTrisRules {
             microStatus = newMicroStatus,
             macroStatus = newMacroStatus,
             moveCount = state.moveCount + 1,
+            moveHistory = state.moveHistory + idx,
         )
     }
 

@@ -8,6 +8,7 @@ import it.claudio.supertris.core.GameState
 import it.claudio.supertris.core.Move
 import it.claudio.supertris.core.SuperTrisRules
 import it.claudio.supertris.data.GameRepository
+import it.claudio.supertris.data.buildHistoryEntry
 import it.claudio.supertris.net.NearbyEvent
 import it.claudio.supertris.net.NearbyTransport
 import it.claudio.supertris.net.NetMessage
@@ -165,7 +166,16 @@ class NearbyViewModel(
         celebrations.register(previous = st, next = next, move = move)
         gameState = next
         transport.send(ep, NetMessage.MoveMsg(moveIndex = st.moveCount, micro = micro, cell = cell))
+        recordIfFinished(next)
         pushUi(next)
+    }
+
+    private fun recordIfFinished(state: GameState) {
+        if (!state.isGameOver()) return
+        val opponent = peerName
+        viewModelScope.launch {
+            buildHistoryEntry(state, opponentName = opponent)?.let { repo.recordFinishedGame(it) }
+        }
     }
 
     // ---------- Eventi dal trasporto ----------
@@ -295,6 +305,7 @@ class NearbyViewModel(
         val next = SuperTrisRules.applyMove(st, move)
         celebrations.register(previous = st, next = next, move = move)
         gameState = next
+        recordIfFinished(next)
         pushUi(next)
     }
 

@@ -15,6 +15,9 @@ data class GameState(
     val microStatus: IntArray, // 9 micro: 0 in corso, 1 X, 2 O, 3 pareggio
     val macroStatus: Int, // 0 in corso, 1 X, 2 O, 3 pareggio
     val moveCount: Int,
+    // Sequenza delle mosse giocate (micro*9+cella), per cronologia e replay.
+    // Default per retrocompatibilita' con i salvataggi precedenti.
+    val moveHistory: List<Int> = emptyList(),
 ) {
     fun isGameOver(): Boolean = macroStatus != SuperTrisRules.STATUS_IN_CORSO
 }

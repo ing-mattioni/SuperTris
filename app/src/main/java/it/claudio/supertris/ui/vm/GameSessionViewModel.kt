@@ -10,6 +10,7 @@ import it.claudio.supertris.core.GameState
 import it.claudio.supertris.core.Move
 import it.claudio.supertris.core.SuperTrisRules
 import it.claudio.supertris.data.GameRepository
+import it.claudio.supertris.data.buildHistoryEntry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -111,6 +112,9 @@ class GameSessionViewModel(
             val next = SuperTrisRules.applyMove(st, move)
             celebrations.register(previous = st, next = next, move = move)
             repo.saveGame(next)
+            if (next.isGameOver()) {
+                buildHistoryEntry(next, opponentName = null)?.let { repo.recordFinishedGame(it) }
+            }
             currentState = next
             pushUi(next, isAiThinking = false)
             maybeTriggerAiMove(next)
@@ -140,6 +144,9 @@ class GameSessionViewModel(
             val next = SuperTrisRules.applyMove(state, aiMove)
             celebrations.register(previous = state, next = next, move = aiMove)
             repo.saveGame(next)
+            if (next.isGameOver()) {
+                buildHistoryEntry(next, opponentName = null)?.let { repo.recordFinishedGame(it) }
+            }
             currentState = next
             pushUi(next, isAiThinking = false)
             maybeTriggerAiMove(next)
