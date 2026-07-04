@@ -39,6 +39,10 @@ data class OnlineRoom(
     val hostSeenMs: Long?,
     val guestSeenMs: Long?,
     val updatedAtMs: Long?,
+    val hostEmoji: String?,
+    val hostEmojiSeq: Long,
+    val guestEmoji: String?,
+    val guestEmojiSeq: Long,
     val protocolVersion: Int,
 )
 
@@ -143,6 +147,10 @@ class OnlineRoomClient {
                             "moves" to emptyList<Map<String, Any>>(),
                             "hostSeen" to FieldValue.serverTimestamp(),
                             "guestSeen" to null,
+                            "hostEmoji" to null,
+                            "hostEmojiSeq" to 0,
+                            "guestEmoji" to null,
+                            "guestEmojiSeq" to 0,
                             "protocolVersion" to ONLINE_PROTOCOL_VERSION,
                             "createdAt" to FieldValue.serverTimestamp(),
                             "updatedAt" to FieldValue.serverTimestamp(),
@@ -170,6 +178,10 @@ class OnlineRoomClient {
                     hostSeenMs = System.currentTimeMillis(),
                     guestSeenMs = null,
                     updatedAtMs = System.currentTimeMillis(),
+                    hostEmoji = null,
+                    hostEmojiSeq = 0,
+                    guestEmoji = null,
+                    guestEmojiSeq = 0,
                     protocolVersion = ONLINE_PROTOCOL_VERSION,
                 )
             }
@@ -328,6 +340,20 @@ class OnlineRoomClient {
         }.await()
     }
 
+    /** Reazione emoji: sovrascrive la precedente, la sequenza fa scattare l'animazione. */
+    suspend fun sendEmoji(code: String, isHost: Boolean, emoji: String) {
+        val prefix = if (isHost) "host" else "guest"
+        db.collection(ROOMS).document(code)
+            .update(
+                mapOf(
+                    "${prefix}Emoji" to emoji,
+                    "${prefix}EmojiSeq" to FieldValue.increment(1),
+                    "updatedAt" to FieldValue.serverTimestamp(),
+                    "expireAt" to newExpireAt(),
+                ),
+            ).await()
+    }
+
     suspend fun heartbeat(code: String, isHost: Boolean) {
         runCatching {
             db.collection(ROOMS).document(code)
@@ -387,6 +413,10 @@ class OnlineRoomClient {
                 hostSeenMs = snap.getTimestamp("hostSeen")?.toDate()?.time,
                 guestSeenMs = snap.getTimestamp("guestSeen")?.toDate()?.time,
                 updatedAtMs = snap.getTimestamp("updatedAt")?.toDate()?.time,
+                hostEmoji = snap.getString("hostEmoji"),
+                hostEmojiSeq = snap.getLong("hostEmojiSeq") ?: 0L,
+                guestEmoji = snap.getString("guestEmoji"),
+                guestEmojiSeq = snap.getLong("guestEmojiSeq") ?: 0L,
                 protocolVersion = (snap.getLong("protocolVersion") ?: 0L).toInt(),
             )
         }.getOrNull()

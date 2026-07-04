@@ -95,6 +95,7 @@ fun GameScreen(
     onBackToMenu: () -> Unit,
     onNewGame: () -> Unit,
     newGameLabel: String = stringResource(id = R.string.azione_nuova_partita),
+    belowBoard: (@Composable () -> Unit)? = null,
 ) {
     val winnerMark = when (ui.macroStatus) {
         SuperTrisRules.STATUS_X -> SuperTrisRules.X
@@ -147,6 +148,11 @@ fun GameScreen(
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
+
+                if (belowBoard != null) {
+                    belowBoard()
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -331,8 +337,9 @@ private fun MicroConquestBanner(
     }
 }
 
+// Riusata anche dal replay della cronologia (enabled = false).
 @Composable
-private fun SuperBoard(
+internal fun SuperBoard(
     enabled: Boolean,
     forcedMicro: Int,
     cells: IntArray,

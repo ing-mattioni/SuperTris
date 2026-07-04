@@ -8,6 +8,7 @@ import it.claudio.supertris.core.GameState
 import it.claudio.supertris.core.Move
 import it.claudio.supertris.core.SuperTrisRules
 import it.claudio.supertris.data.GameRepository
+import it.claudio.supertris.data.buildHistoryEntry
 import it.claudio.supertris.net.GameSummary
 import it.claudio.supertris.net.JoinResult
 import it.claudio.supertris.net.OnlineRoom
@@ -27,6 +28,9 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 enum class OnlineFailure { NOT_FOUND, FULL, VERSION, NETWORK, ROOM_GONE }
+
+/** Emoji ricevuta dall'avversario; [seq] distingue invii ripetuti della stessa emoji. */
+data class EmojiEvent(val emoji: String, val seq: Long)
 
 sealed interface OnlineLobbyState {
     data object Idle : OnlineLobbyState
@@ -58,6 +62,9 @@ class OnlineViewModel(
     private val _roomGone = MutableStateFlow(false)
     val roomGone: StateFlow<Boolean> = _roomGone
 
+    private val _incomingEmoji = MutableStateFlow<EmojiEvent?>(null)
+    val incomingEmoji: StateFlow<EmojiEvent?> = _incomingEmoji
+
     val nickname: StateFlow<String> = repo.nicknameFlow
         .map { it ?: "" }
         .stateIn(viewModelScope, SharingStarted.Eagerly, "")
@@ -75,6 +82,8 @@ class OnlineViewModel(
     private var roomCode: String? = null
     private var lastMovesCount = 0
     private var lastRound = -1
+    private var lastPeerEmojiSeq = -1L
+    private var lastEmojiSentAtMs = 0L
     private val celebrations = CelebrationTracker()
 
     // ---------- Lista partite ----------
@@ -217,6 +226,17 @@ class OnlineViewModel(
         }
     }
 
+    fun sendEmoji(emoji: String) {
+        if (emoji !in ALLOWED_EMOJI) return
+        val code = roomCode ?: return
+        val now = System.currentTimeMillis()
+        if (now - lastEmojiSentAtMs < EMOJI_MIN_INTERVAL_MS) return
+        lastEmojiSentAtMs = now
+        viewModelScope.launch {
+            runCatching { client.sendEmoji(code, isHost, emoji) }
+        }
+    }
+
     // ---------- Osservazione stanza ----------
 
     private fun startSession(code: String) {
@@ -224,11 +244,13 @@ class OnlineViewModel(
         presenceJob?.cancel()
         lastMovesCount = 0
         lastRound = -1
+        lastPeerEmojiSeq = -1L
         celebrations.reset()
         currentRoom = null
         currentState = null
         _opponentOffline.value = false
         _roomGone.value = false
+        _incomingEmoji.value = null
 
         observeJob = client.observeRoom(code)
             .onEach { onRoomUpdate(it) }
@@ -276,6 +298,19 @@ class OnlineViewModel(
             return
         }
 
+        // Emoji dell'avversario: la prima lettura fissa la baseline (niente
+        // animazione per reazioni vecchie), poi ogni incremento fa scattare l'evento.
+        val peerEmojiSeq = if (isHost) room.guestEmojiSeq else room.hostEmojiSeq
+        val peerEmoji = if (isHost) room.guestEmoji else room.hostEmoji
+        if (lastPeerEmojiSeq < 0) {
+            lastPeerEmojiSeq = peerEmojiSeq
+        } else if (peerEmojiSeq > lastPeerEmojiSeq) {
+            lastPeerEmojiSeq = peerEmojiSeq
+            if (peerEmoji != null && peerEmoji in ALLOWED_EMOJI) {
+                _incomingEmoji.value = EmojiEvent(emoji = peerEmoji, seq = peerEmojiSeq)
+            }
+        }
+
         // Rivincita: quando entrambi hanno accettato, l'host resetta la stanza.
         if (isHost && room.hostRematch && room.guestRematch) {
             viewModelScope.launch { runCatching { client.restartIfBothAgreed(room.code) } }
@@ -302,6 +337,18 @@ class OnlineViewModel(
             }
         }
         lastMovesCount = room.moves.size
+
+        // Registrazione esito con dedup persistente ("codice#round"): copre anche
+        // le partite chiuse dall'avversario mentre eri offline e riaperte dopo.
+        if (state.isGameOver()) {
+            val key = "${room.code}#${room.round}"
+            val opponent = if (isHost) room.guestName else room.hostName
+            viewModelScope.launch {
+                if (repo.markOnlineResultRecorded(key)) {
+                    buildHistoryEntry(state, opponentName = opponent)?.let { repo.recordFinishedGame(it) }
+                }
+            }
+        }
 
         pushUi(state, room)
         updatePresence()
@@ -354,7 +401,9 @@ class OnlineViewModel(
         }
     }
 
-    private companion object {
-        const val OFFLINE_AFTER_MS = 90_000L
+    companion object {
+        val ALLOWED_EMOJI = listOf("👏", "😂", "😱", "🔥", "🤔", "😎")
+        private const val OFFLINE_AFTER_MS = 90_000L
+        private const val EMOJI_MIN_INTERVAL_MS = 2_000L
     }
 }

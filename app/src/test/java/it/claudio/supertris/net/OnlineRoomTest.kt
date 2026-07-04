@@ -27,6 +27,10 @@ class OnlineRoomTest {
         hostSeenMs = null,
         guestSeenMs = null,
         updatedAtMs = 1000L,
+        hostEmoji = null,
+        hostEmojiSeq = 0,
+        guestEmoji = null,
+        guestEmojiSeq = 0,
         protocolVersion = ONLINE_PROTOCOL_VERSION,
     )
 
