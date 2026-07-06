@@ -38,7 +38,7 @@ Output atteso:
 Il progetto ora usa `targetSdk = 36` e `compileSdk = 36`.
 Prima di pubblicare, verifica sempre i requisiti Play Store correnti.
 
-## Nota permessi (dalla v1.1)
+## Nota permessi (dalla v1.2)
 
 La modalita' "su due telefoni vicini" usa Nearby Connections e dichiara i
 permessi Bluetooth/NEARBY_WIFI_DEVICES (con `neverForLocation`) piu' i

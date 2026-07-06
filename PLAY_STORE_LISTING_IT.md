@@ -30,6 +30,7 @@ Caratteristiche principali:
 - Tre livelli di difficolta': Facile, Medio e Difficile
 - Gioca in 2 sullo stesso telefono (pass-and-play)
 - Gioca in 2 su due telefoni vicini, senza internet
+- Schermata "Come si gioca" con le regole spiegate ed esempio visivo
 - Salvataggio automatico della partita dopo ogni mossa
 - Pulsante Continua disponibile quando esiste una partita in corso
 - Interfaccia completamente in italiano
