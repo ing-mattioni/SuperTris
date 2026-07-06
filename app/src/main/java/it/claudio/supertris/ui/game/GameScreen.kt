@@ -250,6 +250,27 @@ private fun TopInfoBar(ui: GameUiState) {
                 }
             }
         }
+
+        // Dove si gioca: griglia obbligata (evidenziata) oppure scelta libera.
+        // Il caso "libera" capita spesso dopo la conquista di una super-cella
+        // e senza spiegazione sembra un'evidenziazione mancante.
+        val showHint = !ui.isGameOver &&
+            (ui.isHumanTurn || ui.gameMode == GameMode.PASS_AND_PLAY)
+        if (showHint) {
+            Text(
+                text = if (ui.forcedMicro == -1) {
+                    stringResource(id = R.string.gioco_hint_griglia_libera)
+                } else {
+                    stringResource(id = R.string.gioco_hint_griglia_obbligata)
+                },
+                color = if (ui.forcedMicro == -1) {
+                    MaterialTheme.colorScheme.secondary.copy(alpha = 0.9f)
+                } else {
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.9f)
+                },
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
     }
 }
 
@@ -424,9 +445,14 @@ private fun MicroBoard(
         )
     }
 
+    // Il bordo "celebrativo" dura quanto l'animazione: finita quella, la griglia
+    // conquistata torna al look standard e l'evidenziazione lime della griglia
+    // in cui giocare resta l'unico richiamo visivo forte sul tabellone.
+    val celebrating = isCelebrated && pulse.value > 0f
+
     val borderColor by animateColorAsState(
         targetValue = when {
-            isCelebrated -> accent.copy(alpha = 0.95f)
+            celebrating -> accent.copy(alpha = 0.95f)
             highlighted -> MaterialTheme.colorScheme.primary
             else -> MaterialTheme.colorScheme.outline.copy(alpha = 0.25f)
         },
@@ -448,7 +474,7 @@ private fun MicroBoard(
             )
             .background(bg, shape)
             .border(
-                width = if (highlighted || isCelebrated) 2.dp else 1.dp,
+                width = if (highlighted || celebrating) 2.dp else 1.dp,
                 color = borderColor,
                 shape = shape,
             )
