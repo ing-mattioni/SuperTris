@@ -80,6 +80,8 @@
     <string name="gioco_turno_di">Turno: %1$s</string>
     <string name="gioco_due_giocatori">Due giocatori</string>
     <string name="gioco_ai_pensa">Il computer sta pensando...</string>
+    <string name="gioco_hint_griglia_obbligata">Gioca nella griglia evidenziata.</string>
+    <string name="gioco_hint_griglia_libera">Griglia libera: puoi giocare in qualsiasi griglia aperta!</string>
     <string name="nearby_avversario">avversario</string>
 
     <string name="dialog_titolo_fine_partita">Fine partita</string>

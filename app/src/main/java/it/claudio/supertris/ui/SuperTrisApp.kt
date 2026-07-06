@@ -110,7 +110,18 @@ fun SuperTrisApp(
             GameRoute(
                 vm = gameVm,
                 onBackToMenu = { goToMenu() },
-                onNewGame = { goToDifficulty() },
+                onNewGame = {
+                    // "Nuova partita" torna alla scelta coerente con la modalita'
+                    // appena giocata: difficolta' AI oppure scelta 2 giocatori.
+                    if (gameVm.uiState.value.gameMode == GameMode.PASS_AND_PLAY) {
+                        navController.navigate(Routes.TWO_PLAYERS) {
+                            popUpTo(Routes.MENU)
+                            launchSingleTop = true
+                        }
+                    } else {
+                        goToDifficulty()
+                    }
+                },
             )
         }
         composable(Routes.TWO_PLAYERS) {

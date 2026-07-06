@@ -1,8 +1,20 @@
 # Note di rilascio Play Store
 
-## Versione 1.2.0
+## Versione 1.2.1
 
 Prima release pubblica di Super Tris.
+
+- Super Tic Tac Toe completamente in italiano
+- Modalita' giocatore contro IA con tre livelli di difficolta'
+- Gioca in 2 sullo stesso telefono e su due telefoni vicini, senza internet
+- Schermata "Come si gioca" con le regole spiegate ed esempio visivo
+- Salvataggio automatico della partita e funzione Continua
+
+Correzioni rispetto alla 1.2.0 (non pubblicata):
+- "Nuova partita" a fine sfida in 2 riporta alla scelta della modalita' a 2 giocatori
+- Indicazione chiara della griglia in cui giocare, anche quando la scelta e' libera
+
+## Versione 1.2.0 (non pubblicata)
 
 - Super Tic Tac Toe completamente in italiano
 - Modalita' giocatore contro IA con tre livelli di difficolta'
