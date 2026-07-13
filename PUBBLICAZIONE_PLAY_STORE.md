@@ -45,7 +45,7 @@ caricare manualmente.
 
 **B3. Primo AAB — Test interno.** Menu **Test → Test interno** → "Crea nuova
 release":
-- carica `app\build\outputs\bundle\release\app-release.aab` (v1.2.1, gia'
+- carica `app\build\outputs\bundle\release\app-release.aab` (v1.2.2, gia'
   firmato)
 - note di rilascio: copia da `PLAY_RELEASE_NOTES_IT.md`
 - aggiungi la tua email come tester e installa dal link per verificare che
@@ -96,8 +96,8 @@ qualche giorno). Ad approvazione, l'app e' pubblica sul Play Store.
 - **Backup della chiave di upload**: `keystore.properties` + cartella
   `.signing/`. Non sono nel repository. Senza backup, in caso di perdita del PC
   serve chiedere a Google il reset della chiave di upload. Farlo subito.
-- **Ogni aggiornamento** richiede un `versionCode` piu' alto. La v1.2.1 e'
-  `versionCode 3`; le prossime saranno `4`, `5`, ...
+- **Ogni aggiornamento** richiede un `versionCode` piu' alto. La v1.2.2 e'
+  `versionCode 4`; le prossime saranno `5`, `6`, ...
 - **Rigenerare l'AAB**: `build.bat :app:bundleRelease` (su questa macchina
   serve `build.bat`, non `gradlew.bat` diretto — vedi README).
 - **Ordine dei canali**: Interno (subito, per te) → Chiuso (i 12 tester,

@@ -28,9 +28,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SuperTris">
 
+        <!-- App bloccata in verticale: il layout non e' pensato per il landscape
+             e la rotazione causava problemi di gioco (griglie non raggiungibili). -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.SuperTris.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
