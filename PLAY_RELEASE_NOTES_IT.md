@@ -1,6 +1,6 @@
 # Note di rilascio Play Store
 
-## Versione 1.2.1
+## Versione 1.2.2
 
 Prima release pubblica di Super Tris.
 
@@ -10,9 +10,11 @@ Prima release pubblica di Super Tris.
 - Schermata "Come si gioca" con le regole spiegate ed esempio visivo
 - Salvataggio automatico della partita e funzione Continua
 
-Correzioni rispetto alla 1.2.0 (non pubblicata):
+Correzioni rispetto alle 1.2.0/1.2.1 (non pubblicate):
 - "Nuova partita" a fine sfida in 2 riporta alla scelta della modalita' a 2 giocatori
 - Indicazione chiara della griglia in cui giocare, anche quando la scelta e' libera
+- App sempre in verticale: la rotazione in orizzontale rompeva il tabellone
+  (griglie non raggiungibili)
 
 ## Versione 1.2.0 (non pubblicata)
 
