@@ -2,7 +2,7 @@
 
 Base attuale del progetto `Super Tris`.
 
-Inferenza dal codice al 2026-07-06 (v1.2.1):
+Inferenza dal codice al 2026-07-06 (v1.2.2):
 - permessi Bluetooth/Nearby dichiarati SOLO per la modalita' "due telefoni
   vicini" (Nearby Connections): BLUETOOTH_SCAN e NEARBY_WIFI_DEVICES con
   flag `neverForLocation`, localizzazione legacy solo su Android 12 e
