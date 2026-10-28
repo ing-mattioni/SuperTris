@@ -1,5 +1,10 @@
 # Note di rilascio Play Store
 
+## Versione 1.2.3
+
+- Livello Difficile piu' forte: l'IA ora tiene conto delle risposte migliori
+  dell'avversario ed evita di lasciargli vittorie immediate
+
 ## Versione 1.2.2
 
 Prima release pubblica di Super Tris.

@@ -87,7 +87,6 @@ object SuperTrisAi {
         random: Random,
         active: () -> Boolean = { true },
     ): Move {
-        val ai = SuperTrisRules.aiMark(state)
         val endAt = System.currentTimeMillis() + timeBudgetMs.coerceAtLeast(150)
 
         val root = Node(
@@ -124,17 +123,12 @@ object SuperTrisAi {
                 safety++
             }
 
-            val result = when (rolloutState.macroStatus) {
-                SuperTrisRules.STATUS_X -> if (ai == SuperTrisRules.X) 1.0 else 0.0
-                SuperTrisRules.STATUS_O -> if (ai == SuperTrisRules.O) 1.0 else 0.0
-                SuperTrisRules.STATUS_PAREGGIO -> 0.5
-                else -> 0.5
-            }
-
-            // Backpropagation
+            // Backpropagation: ogni nodo conta il risultato dal punto di vista di chi ha
+            // giocato la mossa che porta li', cosi' la selezione UCT nel padre sceglie
+            // la mossa migliore per chi e' di turno (anche quando tocca all'avversario).
             while (true) {
                 node.visits++
-                node.totalScore += result
+                node.totalScore += scoreFor(node.playerJustMoved, rolloutState.macroStatus)
                 node = node.parent ?: break
             }
         }
@@ -149,6 +143,8 @@ object SuperTrisAi {
         val parent: Node?,
         val move: Move?,
     ) {
+        // applyMove passa sempre il turno, quindi chi ha mosso e' l'altro rispetto a chi tocca ora.
+        val playerJustMoved: Int = SuperTrisRules.other(state.turn)
         val children: MutableList<Node> = ArrayList()
         val untriedMoves: MutableList<Move> = SuperTrisRules.legalMoves(state).toMutableList()
         var visits: Int = 0
@@ -174,6 +170,12 @@ object SuperTrisAi {
                 exploit + explore
             }
         }
+    }
+
+    private fun scoreFor(mark: Int, macroStatus: Int): Double = when (macroStatus) {
+        SuperTrisRules.STATUS_X -> if (mark == SuperTrisRules.X) 1.0 else 0.0
+        SuperTrisRules.STATUS_O -> if (mark == SuperTrisRules.O) 1.0 else 0.0
+        else -> 0.5 // pareggio o playout interrotto
     }
 
     private fun cellPosScore(cell: Int): Int = when (cell) {
